@@ -5,6 +5,8 @@ trait BaseTools
 {
     static protected $garbage = [];
 
+    static protected $tree_info_path = null;
+
     public static function addGarbageItem($path)
     {
         self::$garbage[] = $path;
@@ -33,7 +35,7 @@ trait BaseTools
      * @param  string $add_path
      * @return string
      */
-    public static function getTempPath($add_path = '')
+    public static function makeTempPath($add_path = '')
     {
         $path = empty($add_path) ? '' : DIRECTORY_SEPARATOR . trim($add_path, "/");
         $path = sys_get_temp_dir() . $path;
@@ -54,10 +56,10 @@ trait BaseTools
      * @param  string $add_path
      * @return string
      */
-    public static function getTempFile($add_path = '', $extension = '.php')
+    public static function makeTempFile($add_path = '', $extension = '.php')
     {
         $prefix = preg_replace('#[^a-zA-Z0-9]#', '', get_called_class());
-        $file = tempnam(self::getTempPath($add_path), $prefix . "_");
+        $file = tempnam(self::makeTempPath($add_path), $prefix . "_");
         rename($file, $file . $extension);
         self::addGarbageItem($file . $extension);
         return $file . $extension;
@@ -106,5 +108,50 @@ trait BaseTools
     public static function getTestFilesPath($add_path = '')
     {
         return rtrim(implode(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'Files', $add_path]), "/");
+    }
+
+    /**
+     * Devolve a lista de arquivos no dirteório especificado.
+     *
+     * @param  string $path
+     * @return array
+     */
+    public static function treeInfo(string $path, $replace = true) : array
+    {
+        $index = [];
+
+        if ($replace == true) {
+            self::$tree_info_path = $path;
+        }
+
+        $path_replace = self::$tree_info_path;
+
+        $list = scandir($path);
+        foreach ($list as $item) {
+
+            if (in_array($item, ['.', '..']) ) {
+                continue;
+            }
+
+            $iterator_index_item = $path . DIRECTORY_SEPARATOR . $item;
+
+            if (is_link($iterator_index_item)) {
+                $index[] = str_replace($path_replace, '', $iterator_index_item);
+
+            } elseif (is_file($iterator_index_item) == true) {
+                $index[] = str_replace($path_replace, '', $iterator_index_item);
+
+            } elseif (is_dir($iterator_index_item) ) {
+
+                $index[] = str_replace($path_replace, '', $iterator_index_item);
+
+                $list = self::treeInfo($iterator_index_item, false);
+                foreach ($list as $file) {
+                    $index[] = $file;
+                }
+            }
+        }
+
+        return $index;
     }
 }
