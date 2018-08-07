@@ -153,17 +153,42 @@ class ObfuscateDiretoryTest extends TestCase
         $this->assertEquals($obf_dir . DIRECTORY_SEPARATOR . 'BBB.php', $ob->getUnpackFile());
     }
 
-    public function testObfuscateDirectory()
-    {
-        $this->markTestIncomplete('Não implementado');
-    }
-
     public function testMakeDir()
     {
-        $this->markTestIncomplete('Não implementado');
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $make_path = self::getTempPath('obfuscate_make_dir_' . uniqid());
+        $make_path_add = implode(DIRECTORY_SEPARATOR, [$make_path, 'one', 'two']);
+
+        // Cria um diretório normalmente
+        $this->assertTrue($ob->method('makeDir', $make_path, false));
+        $this->assertTrue(is_dir($make_path));
+
+        // Ao tentar criar um diretório já existente,
+        // o método deve retornar true
+        $this->assertTrue($ob->method('makeDir', $make_path, false));
+
+        // Tenta criar uma árvore de diretórios
+        $this->assertFalse($ob->method('makeDir', $make_path_add, false));
+        $this->assertFalse(is_dir($make_path_add));
+        $this->assertEquals('mkdir(): No such file or directory', $ob->getLastErrorMessage());
+
+        // Força a criação de uma érvore de diretórios
+        $this->assertTrue($ob->method('makeDir', $make_path_add, true));
+        $this->assertTrue(is_dir($make_path_add));
+
+        // Adiciona os diretórios pela ordem de criação
+        // para o garbage collector remover
+        self::addGarbageItem(implode(DIRECTORY_SEPARATOR, [$make_path, 'one']));
+        self::addGarbageItem(implode(DIRECTORY_SEPARATOR, [$make_path, 'one', 'two']));
     }
 
     public function testIsPhpFile()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testObfuscateDirectory()
     {
         $this->markTestIncomplete('Não implementado');
     }

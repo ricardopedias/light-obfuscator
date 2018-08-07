@@ -76,13 +76,14 @@ class ObfuscateDirectory extends ObfuscateFile
     /**
      * Devolve a última mensafgem de erro ocorrida.
      *
-     * @return bool
+     * @return mixed|false
      */
-    public function getLastErrorMessage() : string
+    public function getLastErrorMessage()
     {
         end($this->errors_messages);
         $value = current($this->errors_messages);
         reset($this->errors_messages);
+
         return $value;
     }
 
@@ -190,6 +191,51 @@ class ObfuscateDirectory extends ObfuscateFile
     }
 
     /**
+     * Cria o diretório especificado no sistema de arquivos.
+     *
+     * @param  string  $path
+     * @param  boolean $force
+     * @return boolean
+     */
+    protected function makeDir(string $path, bool $force = false) : bool
+    {
+        if (is_dir($path) == true) {
+            return true;
+        }
+
+        $result = false;
+
+        try {
+            $result = mkdir($path, 0755, $force);
+        } catch(\ErrorException $e) {
+            $this->addErrorMessage( $e->getMessage() );
+        }
+
+        return $result;
+
+
+        // if ($force == false && is_writable(dirname($path)) == false) {
+        //     dirname($path)
+        //     $this->addErrorMessage('The parent directory can not be written');
+        //     return false;
+        // }
+
+        return false;
+    }
+
+    /**
+     * Verifica se o nome especificado é para um arquivo PHP.
+     *
+     * @param  string $filename
+     * @return boolean
+     */
+    protected function isPhpFile(string $filename) : bool
+    {
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        return (strtolower($extension) == 'php');
+    }
+
+    /**
      * Varre o o diretório especificado, ofuscando os arquivos e
      * salvando no diretório de destino.
      *
@@ -263,43 +309,9 @@ class ObfuscateDirectory extends ObfuscateFile
         return true;
     }
 
-    /**
-     * Cria o diretório especificado no sistema de arquivos.
-     *
-     * @param  string  $path
-     * @param  boolean $force
-     * @return boolean
-     */
-    protected function makeDir(string $path, bool $force = false) : bool
-    {
-        if (is_dir($path) && is_writable($path) == false) {
-            // Diretório já existe, mas não é gravável
-            $this->addErrorMessage("O diretório {$path} já existe mas você não tem permissão para escrever nele");
-            return false;
 
-        } elseif (is_dir($path) == true) {
-            // O diretório já existe
-            return true;
-        }
 
-        if (@mkdir($path, 0755, $force) == true) {
-            return true;
-        }
 
-        return false;
-    }
-
-    /**
-     * Verifica se o nome especificado é para um arquivo PHP.
-     *
-     * @param  string $filename
-     * @return boolean
-     */
-    protected function isPhpFile(string $filename) : bool
-    {
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        return (strtolower($extension) == 'php');
-    }
 
     /**
      * Configura os arquivos resultantes do processo de ofuscação

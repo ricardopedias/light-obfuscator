@@ -18,6 +18,8 @@ trait BaseTools
             }
         }
 
+        krsort(self::$garbage);
+
         foreach(self::$garbage as $item) {
             if(is_dir($item)) {
                 rmdir($item);
