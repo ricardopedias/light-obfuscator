@@ -1,43 +1,77 @@
 <?php
-namespace Obfuscator\Tests\Unit;
+namespace PhpObfuscator\Tests\Unit;
 
-use Tests\TestCase;
-use Obfuscator\Libs\PhpObfuscator;
-use Obfuscator\Tests\Libs\BaseObfuscateAccessor;
+use PhpObfuscator\ObfuscateDiretory;
+use PhpObfuscator\Tests\Libs\ObfuscateDirectoryAccessor;
 
-class BaseCommandTest extends TestCase
+class BaseCommandTest extends BaseTest
 {
-    public static function getTestFilesPath($path = '')
+    public function testAddErrorMessage()
     {
-        return rtrim(implode(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'Files', $path]), "/");
+        $this->markTestIncomplete('Não implementado');
     }
 
-    public static function getTempFile($prefix = 'obfuscating_')
+    public function testSetPlainPath()
     {
-        return tempnam(sys_get_temp_dir(), $prefix) . ".php";
+        $this->markTestIncomplete('Não implementado');
     }
 
-    public static function getTestFile($filename)
+    public function testGetPlainPath()
     {
-        $stub_file = implode(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'Files', $filename]);
-        $stub_contents = file_get_contents($stub_file);
-
-        $temp_file = tempnam(sys_get_temp_dir(), 'obfuscating_class_') . ".php";
-        file_put_contents($temp_file, $stub_contents);
-
-        return $temp_file;
+        $this->markTestIncomplete('Não implementado');
     }
 
-    public function testGetObfuscator()
+    public function testSetObfuscatedPath()
     {
-        $this->assertInstanceOf(PhpObfuscator::class,
-            (new BaseObfuscateAccessor)->method('getObfuscator'));
+        $this->markTestIncomplete('Não implementado');
     }
+
+    public function testGetObfuscatedPath()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testGetUnpackFile()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testObfuscateDirectory()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testMakeDir()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testIsPhpFile()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testSetupAutoloader()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testMakeIndex()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
+    public function testGenerateAutoloader()
+    {
+        $this->markTestIncomplete('Não implementado');
+    }
+
 
     //
     // Files Path
     //
 
+    /*
     public function testGetFilesPath_Exception()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -95,28 +129,6 @@ class BaseCommandTest extends TestCase
         $this->assertEquals($ob_path, $ob->method('getObfuscatedPath'));
     }
 
-    public function testBackupPath()
-    {
-        $ob = new BaseObfuscateAccessor;
-        $this->assertNull($ob->method('getFilesPath'));
-        $app_test = self::getTestFilesPath('app');
-        $ob->method('setFilesPath', $app_test);
-
-        // Nomes padrões
-        $bk_dir = $ob->property('backup_dir');
-        $bk_path = dirname($ob->method('getFilesPath')) . DIRECTORY_SEPARATOR . $bk_dir;
-        $this->assertNotNull($ob->method('getBackupPath'));
-        $this->assertEquals($bk_path, $ob->method('getBackupPath'));
-
-        // Nomes personalizados
-        $ob->property('backup_dir', 'custom_ob');
-
-        $bk_dir = $ob->property('backup_dir');
-        $bk_path = dirname($ob->method('getFilesPath')) . DIRECTORY_SEPARATOR . $bk_dir;
-        $this->assertNotNull($ob->method('getBackupPath'));
-        $this->assertEquals($bk_path, $ob->method('getBackupPath'));
-    }
-
     public function testUnpackFile()
     {
         $ob = new BaseObfuscateAccessor;
@@ -139,16 +151,6 @@ class BaseCommandTest extends TestCase
         $this->assertEquals($file, $ob->method('getUnpackFile'));
     }
 
-    public function testComposerFile()
-    {
-        $ob = new BaseObfuscateAccessor;
-        $this->assertNull($ob->method('getFilesPath'));
-        $app_test = self::getTestFilesPath('app');
-        $ob->method('setFilesPath', $app_test);
 
-        // Nomes padrões
-        $file = dirname($ob->method('getFilesPath')) . DIRECTORY_SEPARATOR . 'composer.json';
-        $this->assertNotNull($ob->method('getComposerFile'));
-        $this->assertEquals($file, $ob->method('getComposerFile'));
-    }
+    */
 }

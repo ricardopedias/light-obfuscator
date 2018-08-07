@@ -3,3 +3,4 @@
 /vendor
 /.idea
 /mix-manifest.json
+/.phpunit.result.cache

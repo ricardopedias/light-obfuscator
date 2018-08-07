@@ -1,7 +1,7 @@
 {
-    "name": "plexi/artisan-obfuscator",
-    "description": "Ofuscador de código PHP para o artisan.",
-    "keywords": ["laravel","obfuscating","artisan"],
+    "name": "plexi/php-obfuscator",
+    "description": "Ofuscador de código PHP.",
+    "keywords": ["php","obfuscating","code parser"],
     "license": "MIT",
     "authors": [
         {
@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Obfuscator\\": "src/appmod"
+            "PhpObfuscator\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Obfuscator\\Tests\\": "tests/"
+            "PhpObfuscator\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",
@@ -27,14 +27,6 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
-        },
-        "laravel": {
-            "providers": [
-                "Obfuscator\\ServiceProvider"
-            ],
-            "aliases": {
-                "Obfuscator": "Obfuscator\\Facade"
-            }
         }
     },
     "require-dev": {

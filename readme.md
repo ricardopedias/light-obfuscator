@@ -1,20 +1,16 @@
-# Artisan Obfuscator
+# PHP Obfuscator
 
 *By [Ricardo Pereira Dias &copy;](https://github.com/rpdesignerfly)*
 
-Artisan Obfuscator é um plugin para o artisan que permite exportar um projeto Laravel, gerando uma versão com o código PHP ofuscado, inviabilizando a alteração do código. Muito útil quando é necessário partilhar uma aplicação sem expor o código fonte.
+Bibliotecas para ofuscação de código PHP.
 
 > **Atenção**:
-> Esta biblioteca está em fase de desenvolvimento. Use-a por sua conta e risco!
+> Esta biblioteca ainda não está pronta para uso!
 
-Sinta-se à vontade para conferir os [releases](https://github.com/rpdesignerfly/artisan-obfuscator) e a [licença](license.md).
+Sinta-se à vontade para conferir os [releases](https://github.com/rpdesignerfly/php-obfuscator) e a [licença](license.md).
 
 ### Características
 
-  * Feito para o Laravel 5.5 ou superior.
-  * Configuração automática.
-  * Bem documentado &amp; amigável para IDEs.
-  * Bem testado e com máxima qualidade de código.
   * Feito com :heart: &amp; :coffee:.
 
 ## Creditos

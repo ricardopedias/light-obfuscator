@@ -1,12 +1,12 @@
 <?php
 namespace Obfuscator\Tests\Libs;
 
-use Obfuscator\Commands\BaseCommand;
+use PhpObfuscator\ObfuscateDirectory;
 
-class BaseObfuscateAccessor extends BaseCommand
+class ObfuscateDirectoryAccessor extends BaseCommand
 {
     /**
-     * devolve ou seta um atributo.
+     * Devolve ou seta um atributo.
      *
      * @param  string $name
      * @param  mixed $value

@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Obfuscator\Libs;
+namespace PhpObfuscator;
 
 /**
  * Esta biblioteca ofusca o código PHP, adicionando dependencias que serão
@@ -15,7 +15,7 @@ namespace Obfuscator\Libs;
  * Para que os arquivos resultantes sejam executados com sucesso, o conteúdo
  * do arquivo RevertObfuscation.php deve estar acessível para o código ofuscado.
  */
-class PhpObfuscator
+class ObfuscateFile
 {
     /**
      * Controla se o código, depois de ofuscado, pode disparar erros para o
