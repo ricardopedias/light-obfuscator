@@ -128,7 +128,7 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClass_Exception()
     {
         $origin = self::getStubFile('PhpClass.stub');
-        $saved_file = self::getTempFile();
+        $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
         $ob = (new ObfuscateFile)->obfuscateFile($origin);
@@ -146,7 +146,7 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClassClosed_Exception()
     {
         $origin = self::getStubFile('PhpClassClosed.stub');
-        $saved_file = self::getTempFile();
+        $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
         $ob = (new ObfuscateFile)->obfuscateFile($origin);
@@ -164,7 +164,7 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClassNamespaced_Exception()
     {
         $origin = self::getStubFile('PhpClassNamespaced.stub');
-        $saved_file = self::getTempFile();
+        $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
         $ob = (new ObfuscateFile)->obfuscateFile($origin);
@@ -182,7 +182,7 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpProcedural_Exception()
     {
         $origin = self::getStubFile('PhpProcedural.stub');
-        $saved_file = self::getTempFile();
+        $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
         $ob = (new ObfuscateFile)->obfuscateFile($origin);
@@ -200,7 +200,7 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpProceduralClosed_Exception()
     {
         $origin = self::getStubFile('PhpProceduralClosed.stub');
-        $saved_file = self::getTempFile();
+        $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
         $ob = (new ObfuscateFile)->obfuscateFile($origin);
@@ -220,8 +220,8 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClass()
     {
         $origin = self::getStubFile('PhpClass.stub');
-        $saved_file = self::getTempFile();
-        $saved_revert_file = self::getTempFile('revert_obfuscate_');
+        $saved_file = self::makeTempFile();
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
@@ -243,8 +243,8 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClassClosed()
     {
         $origin = self::getStubFile('PhpClassClosed.stub');
-        $saved_file = self::getTempFile();
-        $saved_revert_file = self::getTempFile('revert_obfuscate_');
+        $saved_file = self::makeTempFile();
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
@@ -265,8 +265,8 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpClassNamespaced()
     {
         $origin = self::getStubFile('PhpClassNamespaced.stub');
-        $saved_file = self::getTempFile();
-        $saved_revert_file = self::getTempFile('revert_obfuscate_');
+        $saved_file = self::makeTempFile();
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
@@ -286,8 +286,8 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpProcedural()
     {
         $origin = self::getStubFile('PhpProcedural.stub');
-        $saved_file = self::getTempFile();
-        $saved_revert_file = self::getTempFile('revert_obfuscate_');
+        $saved_file = self::makeTempFile();
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
@@ -308,8 +308,8 @@ class ObfuscateFileTest extends TestCase
     public function testObfuscatePhpProceduralClosed()
     {
         $origin = self::getStubFile('PhpProceduralClosed.stub');
-        $saved_file = self::getTempFile();
-        $saved_revert_file = self::getTempFile('revert_obfuscate_');
+        $saved_file = self::makeTempFile();
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
