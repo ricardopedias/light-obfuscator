@@ -117,6 +117,16 @@ class ObfuscateFileTest extends TestCase
         $this->assertEquals($name_one, $name_two);
     }
 
+    public function testIsObfuscatedFile()
+    {
+        $not_obfuscated = self::getStubFile('PhpClass.stub');
+        $obfuscated = self::getStubFile('PhpClassObfuscated.stub');
+
+        $this->assertFalse((new ObfuscateFile)->isObfuscatedFile($not_obfuscated));
+        $this->assertTrue((new ObfuscateFile)->isObfuscatedFile($obfuscated));
+    }
+
+
     //
     // Ofuscação e Execução
     //

@@ -173,6 +173,31 @@ class ObfuscateFile
     }
 
     /**
+     * Verifica se o arquivo especificado já está ofuscado.
+     *
+     * @param  string $obfuscated_file
+     * @return \Obfuscator\Libs\PhpObfuscator
+     */
+    public function isObfuscatedFile($obfuscated_file)
+    {
+        $contents = \file_get_contents($obfuscated_file);
+        if ($contents === false) {
+            // não foi possível ler o arquivo
+            return false;
+        }
+
+        if (empty(preg_match('#<\?php#', $contents)) == false
+         && empty(preg_match('#x28#', $contents)) == false
+         && empty(preg_match('#x29#', $contents)) == false
+         && empty(preg_match('#eval#', $contents)) == false
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Ofusca o arquivo especificado e armazena-o na memória.
      *
      * @param  string $origin_file
