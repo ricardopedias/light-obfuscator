@@ -1,9 +1,9 @@
 <?php
-namespace Obfuscator\Tests\Libs;
+namespace PhpObfuscator\Tests\Libs;
 
 use PhpObfuscator\ObfuscateDirectory;
 
-class ObfuscateDirectoryAccessor extends BaseCommand
+class ObfuscateDirectoryAccessor extends ObfuscateDirectory
 {
     /**
      * Devolve ou seta um atributo.

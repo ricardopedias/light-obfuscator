@@ -56,10 +56,34 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param string $message
      * @return bool
      */
-    protected function addErrorMessage(string $message) : bool
+    public function addErrorMessage(string $message) : bool
     {
         $this->errors_messages[] = $message;
         return true;
+    }
+
+    /**
+     * Devolve as mensagens de erro ocorridas no processo.
+     *
+     * @param string $message
+     * @return bool
+     */
+    public function getErrorMessages() : array
+    {
+        return $this->errors_messages;
+    }
+
+    /**
+     * Devolve a última mensafgem de erro ocorrida.
+     *
+     * @return bool
+     */
+    public function getLastErrorMessage() : string
+    {
+        end($this->errors_messages);
+        $value = current($this->errors_messages);
+        reset($this->errors_messages);
+        return $value;
     }
 
     /**
@@ -69,16 +93,16 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param string $path
      * @return bool
      */
-    protected function setPlainPath(string $path): bool
+    public function setPlainPath(string $path): bool
     {
         $this->plain_path = rtrim($path, "/");
         if (is_dir($this->plain_path) === false) {
-            $this->addErrorMessage("The directory specified is invalid: {$this->plain_path}");
+            $this->addErrorMessage("The specified directory does not exist");
             return false;
         }
 
         if (is_readable($this->plain_path) == false) {
-            $this->addErrorMessage("No permissions to read directory: {$this->plain_path}");
+            $this->addErrorMessage("No permissions to read directory");
             return false;
         }
 
@@ -91,7 +115,7 @@ class ObfuscateDirectory extends ObfuscateFile
      *
      * @return string
      */
-    protected function getPlainPath()
+    public function getPlainPath()
     {
         return $this->plain_path;
     }
@@ -103,16 +127,16 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param string $path
      * @return Obfuscator\Libs\PhpObfuscator
      */
-    protected function setObfuscatedPath(string $path) : bool
+    public function setObfuscatedPath(string $path) : bool
     {
         $this->obfuscated_path = rtrim($path, "/");
         if(is_dir($this->obfuscated_path) === false) {
-            $this->addErrorMessage("The directory specified is invalid: {$this->obfuscated_path}");
+            $this->addErrorMessage("The specified directory does not exist");
             return false;
         }
 
         if (is_writable($this->obfuscated_path) == false) {
-            $this->addErrorMessage("No permissions to write to the directory: {$this->obfuscated_path}");
+            $this->addErrorMessage("No permissions to write to the directory");
             return false;
         }
 
@@ -125,13 +149,27 @@ class ObfuscateDirectory extends ObfuscateFile
      *
      * @return string
      */
-    protected function getObfuscatedPath()
+    public function getObfuscatedPath()
     {
-        $base_name = \pathinfo($this->plain_path, PATHINFO_BASENAME);
+        if ($this->obfuscated_path === null && $this->plain_path !== null ) {
+            $base_name = \pathinfo($this->plain_path, PATHINFO_BASENAME) . '_obfuscated';
+            return dirname($this->plain_path) . DIRECTORY_SEPARATOR . $base_name;
+        }
 
-        return is_null($this->obfuscated_path)
-            ? dirname($this->plain_path) . DIRECTORY_SEPARATOR . $base_name
-            : $this->obfuscated_path;
+        return $this->obfuscated_path;
+    }
+
+    /**
+     * Seta o nome do arquivo que conterá as funções de reversão.
+     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
+     * e adicionado no arquivo 'autoloader.php' da aplicação.
+     *
+     * @return string
+     */
+    public function setUnpackFile(string $php_file): bool
+    {
+        $this->unpack_file = \pathinfo($php_file, PATHINFO_FILENAME) . ".php";
+        return true;
     }
 
     /**
@@ -141,8 +179,13 @@ class ObfuscateDirectory extends ObfuscateFile
      *
      * @return string
      */
-    protected function getUnpackFile()
+    public function getUnpackFile()
     {
+        if ($this->getObfuscatedPath() === null) {
+            $this->addErrorMessage("The obfuscation directory was not set");
+            return null;
+        }
+
         return $this->getObfuscatedPath() . DIRECTORY_SEPARATOR . $this->unpack_file;
     }
 
@@ -154,7 +197,7 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param  string $path_obfuscated
      * @return boolean
      */
-    protected function obfuscateDirectory(string $path_plain, string $path_obfuscated) : bool
+    public function obfuscateDirectory(string $path_plain, string $path_obfuscated) : bool
     {
         // Lista os arquivos do diretório
         $list = scandir($path_plain);

@@ -1,11 +1,15 @@
 <?php
 namespace PhpObfuscator\Tests\Unit;
 
+use Tests\TestCase;
 use PhpObfuscator\Tests\Libs\ObfuscateFileAccessor;
+use PhpObfuscator\Tests\Libs\BaseTools;
 use PhpObfuscator\ObfuscateFile;
 
-class ObfuscateFileTest extends BaseTest
+class ObfuscateFileTest extends TestCase
 {
+    use BaseTools;
+
     private $errors;
 
     private $test_files = [
@@ -20,7 +24,7 @@ class ObfuscateFileTest extends BaseTest
     {
         foreach ($this->test_files as $file) {
 
-            $code = self::getTestFileContents($file);
+            $code = self::getStubFileContents($file);
             $this->assertContains('<?php', $code);
 
             $removed = (new ObfuscateFileAccessor)->method('phpWrapperRemove', $code);
@@ -32,7 +36,7 @@ class ObfuscateFileTest extends BaseTest
         // ---------------------------------------------------------------------
         // Procedural: Abertura + Fechamento + Mixeds
         //
-        $code = self::getTestFileContents('PhpProceduralMixed.stub');
+        $code = self::getStubFileContents('PhpProceduralMixed.stub');
 
         $this->assertContains('<?php', $code);
         $this->assertContains('<?=', $code);
@@ -50,7 +54,7 @@ class ObfuscateFileTest extends BaseTest
     {
         foreach ($this->test_files as $file) {
 
-            $string = self::getTestFileContents($file);
+            $string = self::getStubFileContents($file);
 
             $ob = new ObfuscateFileAccessor;
             $compressed = $ob->packerOnePack($string);
@@ -62,7 +66,7 @@ class ObfuscateFileTest extends BaseTest
     {
         foreach ($this->test_files as $file) {
 
-            $string = self::getTestFileContents($file);
+            $string = self::getStubFileContents($file);
 
             $ob = new ObfuscateFileAccessor;
             $compressed = $ob->packerTwoPack($string);
@@ -74,7 +78,7 @@ class ObfuscateFileTest extends BaseTest
     {
         foreach ($this->test_files as $file) {
 
-            $string = self::getTestFileContents($file);
+            $string = self::getStubFileContents($file);
 
             $ob = new ObfuscateFileAccessor;
             $compressed = $ob->packerThreePack($string);
@@ -123,7 +127,7 @@ class ObfuscateFileTest extends BaseTest
       */
     public function testObfuscatePhpClass_Exception()
     {
-        $origin = self::getTestFile('PhpClass.stub');
+        $origin = self::getStubFile('PhpClass.stub');
         $saved_file = self::getTempFile();
 
         // Ofusca o arquivo e salva do disco
@@ -141,7 +145,7 @@ class ObfuscateFileTest extends BaseTest
      */
     public function testObfuscatePhpClassClosed_Exception()
     {
-        $origin = self::getTestFile('PhpClassClosed.stub');
+        $origin = self::getStubFile('PhpClassClosed.stub');
         $saved_file = self::getTempFile();
 
         // Ofusca o arquivo e salva do disco
@@ -159,7 +163,7 @@ class ObfuscateFileTest extends BaseTest
      */
     public function testObfuscatePhpClassNamespaced_Exception()
     {
-        $origin = self::getTestFile('PhpClassNamespaced.stub');
+        $origin = self::getStubFile('PhpClassNamespaced.stub');
         $saved_file = self::getTempFile();
 
         // Ofusca o arquivo e salva do disco
@@ -177,7 +181,7 @@ class ObfuscateFileTest extends BaseTest
      */
     public function testObfuscatePhpProcedural_Exception()
     {
-        $origin = self::getTestFile('PhpProcedural.stub');
+        $origin = self::getStubFile('PhpProcedural.stub');
         $saved_file = self::getTempFile();
 
         // Ofusca o arquivo e salva do disco
@@ -195,7 +199,7 @@ class ObfuscateFileTest extends BaseTest
      */
     public function testObfuscatePhpProceduralClosed_Exception()
     {
-        $origin = self::getTestFile('PhpProceduralClosed.stub');
+        $origin = self::getStubFile('PhpProceduralClosed.stub');
         $saved_file = self::getTempFile();
 
         // Ofusca o arquivo e salva do disco
@@ -215,7 +219,7 @@ class ObfuscateFileTest extends BaseTest
 
     public function testObfuscatePhpClass()
     {
-        $origin = self::getTestFile('PhpClass.stub');
+        $origin = self::getStubFile('PhpClass.stub');
         $saved_file = self::getTempFile();
         $saved_revert_file = self::getTempFile('revert_obfuscate_');
 
@@ -238,7 +242,7 @@ class ObfuscateFileTest extends BaseTest
 
     public function testObfuscatePhpClassClosed()
     {
-        $origin = self::getTestFile('PhpClassClosed.stub');
+        $origin = self::getStubFile('PhpClassClosed.stub');
         $saved_file = self::getTempFile();
         $saved_revert_file = self::getTempFile('revert_obfuscate_');
 
@@ -260,7 +264,7 @@ class ObfuscateFileTest extends BaseTest
 
     public function testObfuscatePhpClassNamespaced()
     {
-        $origin = self::getTestFile('PhpClassNamespaced.stub');
+        $origin = self::getStubFile('PhpClassNamespaced.stub');
         $saved_file = self::getTempFile();
         $saved_revert_file = self::getTempFile('revert_obfuscate_');
 
@@ -281,7 +285,7 @@ class ObfuscateFileTest extends BaseTest
 
     public function testObfuscatePhpProcedural()
     {
-        $origin = self::getTestFile('PhpProcedural.stub');
+        $origin = self::getStubFile('PhpProcedural.stub');
         $saved_file = self::getTempFile();
         $saved_revert_file = self::getTempFile('revert_obfuscate_');
 
@@ -303,7 +307,7 @@ class ObfuscateFileTest extends BaseTest
 
     public function testObfuscatePhpProceduralClosed()
     {
-        $origin = self::getTestFile('PhpProceduralClosed.stub');
+        $origin = self::getStubFile('PhpProceduralClosed.stub');
         $saved_file = self::getTempFile();
         $saved_revert_file = self::getTempFile('revert_obfuscate_');
 
@@ -321,5 +325,12 @@ class ObfuscateFileTest extends BaseTest
 
         // Funções
         $this->assertEquals(\PhpProceduralClosed(), 'PhpProceduralClosed executando com sucesso');
+    }
+
+    public function testFinal()
+    {
+        // Apenas para executar o coletor de lixo gerado pelos testes
+        self::garbageCollector();
+        $this->assertTrue(true);
     }
 }
