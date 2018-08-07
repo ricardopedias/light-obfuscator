@@ -212,15 +212,6 @@ class ObfuscateDirectory extends ObfuscateFile
         }
 
         return $result;
-
-
-        // if ($force == false && is_writable(dirname($path)) == false) {
-        //     dirname($path)
-        //     $this->addErrorMessage('The parent directory can not be written');
-        //     return false;
-        // }
-
-        return false;
     }
 
     /**
@@ -229,7 +220,7 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param  string $filename
      * @return boolean
      */
-    protected function isPhpFile(string $filename) : bool
+    protected function isPhpFilename(string $filename) : bool
     {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         return (strtolower($extension) == 'php');
@@ -276,7 +267,7 @@ class ObfuscateDirectory extends ObfuscateFile
 
             } elseif (is_file($iterate_current_item) == true) {
 
-                if ($this->isPhpFile($iterate_current_item) == true) {
+                if ($this->isPhpFilename($iterate_current_item) == true) {
 
                     // Arquivos PHP são ofuscados
                     if($this->obfuscateFile($iterate_current_item) == false) {
@@ -308,10 +299,6 @@ class ObfuscateDirectory extends ObfuscateFile
 
         return true;
     }
-
-
-
-
 
     /**
      * Configura os arquivos resultantes do processo de ofuscação
