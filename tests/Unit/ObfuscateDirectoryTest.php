@@ -199,8 +199,8 @@ class ObfuscateDiretoryTest extends TestCase
         $ob = new ObfuscateDirectoryAccessor;
         $ob->obfuscateDirectory($app_dir, $obf_dir);
 
-        $app_info = self::treeInfo($app_dir, $obf_dir);
-        $obf_info = self::treeInfo($obf_dir, $obf_dir);
+        $app_info = self::treeInfo($app_dir);
+        $obf_info = self::treeInfo($obf_dir);
         $this->assertEquals($app_info, $obf_info);
 
         // Verifica se todos os arquivos PHP
@@ -219,18 +219,43 @@ class ObfuscateDiretoryTest extends TestCase
         }
     }
 
-    public function testSetupAutoloader()
-    {
-        $this->markTestIncomplete('Não implementado');
-    }
-
     public function testMakeIndex()
     {
-        $this->markTestIncomplete('Não implementado');
+        $app_dir = self::getTestFilesPath('app');
+
+        $ob = new ObfuscateDirectoryAccessor;
+        $list_index = $ob->method('makeIndex', $app_dir);
+
+        $app_info = self::treeInfo($app_dir);
+        $list_info = [];
+        foreach($app_info as $item){
+            $item_file = $app_dir . $item;
+            if ($ob->method('isPhpFilename', $item_file)) {
+                $list_info[] = $item_file;
+            }
+        }
+        $this->assertEquals($list_index, $list_info);
     }
 
     public function testGenerateAutoloader()
     {
+        $app_dir = self::getTestFilesPath('app');
+
+        $ob = new ObfuscateDirectoryAccessor;
+        $list_index = $ob->method('makeIndex', $app_dir);
+
+        $autoloader = $ob->method('generateAutoloader', $list_index);
+        $this->assertEquals('The obfuscation directory was not set', $ob->getLastErrorMessage());
+
+        // TODO teste incompleto
+
+    }
+
+    public function testSetupAutoloader()
+    {
+
+        //setupAutoloader
+
         $this->markTestIncomplete('Não implementado');
     }
 

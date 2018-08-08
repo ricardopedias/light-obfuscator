@@ -308,17 +308,17 @@ class ObfuscateDirectory extends ObfuscateFile
      */
     public function setupAutoloader() : bool
     {
-        $path_plain = $this->getPlainPath();
+        $obfuscated_path = $this->getObfuscatedPath();
 
         // Gera uma lista com todos os arquivos PHP
         // que foram ofuscados
-        $index = $this->makeIndex($path_plain);
+        $index = $this->makeIndex($obfuscated_path);
 
         // Salva o arquivo contendo as funções
         // que desfazem a ofuscação do código
         $revert_file = $this->getUnpackFile();
-        if($this->getObfuscator()->saveRevertFile($revert_file) == false) {
-            $this->addErrorMessage("Ocorreu um erro ao tentar criar o arquivo de reversão");
+        if($this->saveRevertFile($revert_file) == false) {
+            $this->addErrorMessage("Error creating the unpack file");
             return false;
         }
 
@@ -328,7 +328,7 @@ class ObfuscateDirectory extends ObfuscateFile
 
         // Cria o autoloader com os arquivos ofuscados
         if ($this->generateAutoloader($index) == false) {
-            $this->addErrorMessage("Não foi possível gerar o autoloader em {$path_plain}");
+            $this->addErrorMessage("Error creating autoloader file");
             return false;
         }
 
@@ -362,7 +362,7 @@ class ObfuscateDirectory extends ObfuscateFile
 
             } elseif (is_file($iterator_index_item) == true) {
 
-                if ($this->isPhpFile($iterator_index_item) == true) {
+                if ($this->isPhpFilename($iterator_index_item) == true) {
                     $index[] = $iterator_index_item;
                 } else {
                     // Arquivos não-PHP
@@ -390,20 +390,23 @@ class ObfuscateDirectory extends ObfuscateFile
      */
     protected function generateAutoloader(array $list_files) : bool
     {
-        $file = $this->getPlainPath() . DIRECTORY_SEPARATOR . 'autoloader.php';
-
-        // Se o autoloader existir, remove-o da lista
-        // TODO: refatorar para isso não ser necessário jamais!!
-        if (($key = array_search($file, $list_files)) !== false) {
-            unset($list_files[$key]);
+        if ($this->getObfuscatedPath() === null) {
+            $this->addErrorMessage("The obfuscation directory was not set");
+            return false;
         }
+
+        $file = $this->getObfuscatedPath() . DIRECTORY_SEPARATOR . 'autoloader.php';
 
         $contents = "<?php \n\n";
 
+        // Array de includes
         $contents .= "\$includes = array(\n";
         $contents .= "    '" . implode("',\n    '", $list_files) . "'\n";
         $contents .= ");\n\n";
 
+        // Loop nos includes
+        // TODO: incluir uma função ofuscada para fazer o loop
+        // contendo as funções de desempacotamento
         $contents .= "foreach(\$includes as \$file) {\n";
         $contents .= "    require_once(\$file);\n";
         $contents .= "}\n\n";
