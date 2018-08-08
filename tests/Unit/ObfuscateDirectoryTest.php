@@ -37,120 +37,26 @@ class ObfuscateDiretoryTest extends TestCase
         $this->assertEquals($ob->getLastErrorMessage(), 'ddd');
     }
 
-    public function testSetPlainPath()
-    {
-        $ob = new ObfuscateDirectoryAccessor;
-
-        $app_dir = self::getTestFilesPath('app');
-        $not_dir = '/diretorio/inexistente/';
-        $not_read_dir = self::makeTempPath('app_not_read');
-
-        // Diretório setado com sucesso
-        $this->assertTrue($ob->setPlainPath($app_dir));
-        $this->assertEquals($app_dir, $ob->getPlainPath());
-
-        // Diretório setado com sucesso
-        // Barras no final são removidas
-        $this->assertTrue($ob->setPlainPath($app_dir . "/"));
-        $this->assertEquals($app_dir, $ob->getPlainPath());
-
-        // Diretório não setado: inexistente
-        $this->assertFalse($ob->setPlainPath($not_dir));
-        $this->assertEquals('The specified directory does not exist', $ob->getLastErrorMessage());
-
-
-        @mkdir($not_read_dir); // cria o diretório temporário
-        chmod($not_read_dir, 0000); // remove permissões de leitura
-
-        // Diretório não setado: não é legível
-        $this->assertFalse($ob->setPlainPath($not_read_dir));
-        $this->assertEquals('No permissions to read directory', $ob->getLastErrorMessage());
-
-        // adiciona permissões de leitura para o garbage collector excluir
-        chmod($not_read_dir, 0755);
-    }
-
-    public function testSetObfuscatedPath()
-    {
-        $ob = new ObfuscateDirectoryAccessor;
-
-        $obf_dir = self::makeTempPath('app_obfuscated');
-        $not_dir = '/diretorio/inexistente/';
-        $not_write_dir = self::makeTempPath('app_not_write');
-
-        // Diretório setado com sucesso
-        $this->assertTrue($ob->setObfuscatedPath($obf_dir));
-        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
-
-        // Diretório setado com sucesso
-        // Barras no final são removidas
-        $this->assertTrue($ob->setObfuscatedPath($obf_dir . "/"));
-        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
-
-        // Diretório não setado: inexistente
-        $this->assertFalse($ob->setObfuscatedPath($not_dir));
-        $this->assertEquals('The specified directory does not exist', $ob->getLastErrorMessage());
-
-        @mkdir($not_write_dir); // cria o diretório temporário
-        chmod($not_write_dir, 0000); // remove permissões de leitura
-
-        // Diretório não setado: não é legível
-        $this->assertFalse($ob->setObfuscatedPath($not_write_dir));
-        $this->assertEquals('No permissions to write to the directory', $ob->getLastErrorMessage());
-
-        // adiciona permissões de leitura para o garbage collector excluir
-        chmod($not_write_dir, 0755);
-    }
-
-    public function testGetObfuscatedPath()
-    {
-        $ob = new ObfuscateDirectoryAccessor;
-
-        $app_dir = self::getTestFilesPath('app');
-        $obf_dir = self::makeTempPath('app_obfuscated');
-
-        // Nada foi setado ainda
-        $this->assertNull($ob->getObfuscatedPath());
-
-        // Seta o diretório com os arquivos a serem ofuscados
-        $this->assertTrue($ob->setPlainPath($app_dir));
-        $this->assertEquals($app_dir, $ob->getPlainPath());
-
-        // Quando um diretóirio de destivo não foi setado ainda,
-        // ele é gerado com base no diretório dos arquivos
-        // adicionando o sufixo '_obfuscated'
-        $this->assertNotNull($ob->getObfuscatedPath());
-        $this->assertEquals($app_dir . '_obfuscated', $ob->getObfuscatedPath());
-
-        // Seta normalmente
-        $this->assertTrue($ob->setObfuscatedPath($obf_dir));
-        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
-    }
-
-    public function testGetUnpackFile()
+    public function testSetUnpackFile()
     {
         $ob = new ObfuscateDirectoryAccessor;
 
         $obf_dir = self::makeTempPath('app_obfuscated');
 
-        // O caminho do arquivo de reveroa precisa do caminho de ofuscação
-        $this->assertNull($ob->getUnpackFile());
-        $this->assertEquals('The obfuscation directory was not set', $ob->getLastErrorMessage());
+        // Por padrão, o arquivo de desempacotamento se chamará App.php
+        $this->assertEquals('App.php', $ob->property('unpack_file'));
 
         // seta o caminho de ofuscação
-        $ob->setObfuscatedPath($obf_dir);
-
-        // O caminho é resolvido com o nome padrão 'App.php'
-        $this->assertEquals($obf_dir . DIRECTORY_SEPARATOR . 'App.php', $ob->getUnpackFile());
+        $ob->obfuscateDirectory($obf_dir);
 
         // O caminho é resolvido com o nome personalizado 'AAA.php'
         $this->assertTrue($ob->setUnpackFile('AAA.php'));
-        $this->assertEquals($obf_dir . DIRECTORY_SEPARATOR . 'AAA.php', $ob->getUnpackFile());
+        $this->assertEquals('AAA.php', $ob->property('unpack_file'));
 
         // O caminho é resolvido com o nome personalizado
         // Nomes sem extenção são resolvidos automaticamente
         $this->assertTrue($ob->setUnpackFile('BBB'));
-        $this->assertEquals($obf_dir . DIRECTORY_SEPARATOR . 'BBB.php', $ob->getUnpackFile());
+        $this->assertEquals('BBB.php', $ob->property('unpack_file'));
     }
 
     public function testMakeDir()
@@ -193,19 +99,139 @@ class ObfuscateDiretoryTest extends TestCase
 
     public function testObfuscateDirectory()
     {
-        $app_dir = self::getTestFilesPath('app');
-        $obf_dir = self::makeTempPath('app_obfuscated');
-
         $ob = new ObfuscateDirectoryAccessor;
-        $ob->obfuscateDirectory($app_dir, $obf_dir);
+
+        $app_dir = self::getTestFilesPath('app');
+        $not_dir = '/diretorio/inexistente/';
+        $not_read_dir = self::makeTempPath('app_not_read');
+
+        // Diretório setado com sucesso
+        $this->assertTrue($ob->obfuscateDirectory($app_dir));
+        $this->assertEquals($app_dir, $ob->getPlainPath());
+
+        // Diretório setado com sucesso
+        // Barras no final são removidas
+        $this->assertTrue($ob->obfuscateDirectory($app_dir . "/"));
+        $this->assertEquals($app_dir, $ob->getPlainPath());
+
+        // Diretório não setado: inexistente
+        $this->assertFalse($ob->obfuscateDirectory($not_dir));
+        $this->assertEquals('The specified directory does not exist', $ob->getLastErrorMessage());
+
+
+        @mkdir($not_read_dir); // cria o diretório temporário
+        chmod($not_read_dir, 0000); // remove permissões de leitura
+
+        // Diretório não setado: não é legível
+        $this->assertFalse($ob->obfuscateDirectory($not_read_dir));
+        $this->assertEquals('No permissions to read directory', $ob->getLastErrorMessage());
+
+        // adiciona permissões de leitura para o garbage collector excluir
+        chmod($not_read_dir, 0755);
+    }
+
+    public function testSaveDirectoryErrors()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_errors');
+        $not_dir = '/diretorio/inexistente/';
+        $not_write_dir = self::makeTempPath('app_not_write');
+
+        $ob->obfuscateDirectory($app_dir);
+
+        // Diretório não setado: inexistente
+        $this->assertFalse($ob->saveDirectory($not_dir));
+        $this->assertEquals('The specified directory does not exist', $ob->getLastErrorMessage());
+
+        @mkdir($not_write_dir); // cria o diretório temporário
+        chmod($not_write_dir, 0000); // remove permissões de leitura
+
+        // Diretório não setado: não é legível
+        $this->assertFalse($ob->saveDirectory($not_write_dir));
+        $this->assertEquals('No permissions to write to the directory', $ob->getLastErrorMessage());
+
+        // adiciona permissões de leitura para o garbage collector excluir
+        chmod($not_write_dir, 0755);
+    }
+
+    public function testSaveDirectoryCommon()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_common');
+
+        $ob->obfuscateDirectory($app_dir);
+
+        // Diretório setado com sucesso
+        $this->assertTrue($ob->saveDirectory($obf_dir));
+        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
 
         $app_info = self::treeInfo($app_dir);
         $obf_info = self::treeInfo($obf_dir);
-        $this->assertEquals($app_info, $obf_info);
+
+        // remove os arquivos 'App.php' e 'autoloader.php',
+        // que são gerados adicionalmente
+        $obf_info_cleaned = [];
+        foreach ($obf_info as $index => $item) {
+            if(preg_match('#App\.php#', $item) || preg_match('#autoloader\.php#', $item)) {
+                continue;
+            }
+            $obf_info_cleaned[] = $item;
+        }
+
+        $this->assertEquals($app_info, $obf_info_cleaned);
 
         // Verifica se todos os arquivos PHP
         // foram devidamente ofuscados
+        foreach($obf_info_cleaned as $item) {
+            $ob_file = $obf_dir . $item;
+            if ($ob->method('isPhpFilename', $ob_file)) {
+                $this->assertTrue($ob->isObfuscatedFile($ob_file));
+            }
+        }
+
+        // Marca os arquivos e diretórios gerados pela ofuscação
+        // para o garbage collector possa remover
         foreach($obf_info as $item) {
+            self::addGarbageItem($obf_dir . DIRECTORY_SEPARATOR . $item);
+        }
+    }
+
+    public function testSaveDirectoryFinalBar()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_final_bar');
+
+        $ob->obfuscateDirectory($app_dir);
+
+        // Diretório setado com sucesso
+        // Barras no final são removidas
+        $this->assertTrue($ob->saveDirectory($obf_dir . "/"));
+        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
+
+        $app_info = self::treeInfo($app_dir);
+        $obf_info = self::treeInfo($obf_dir);
+
+        // remove os arquivos 'App.php' e 'autoloader.php',
+        // que são gerados adicionalmente
+        $obf_info_cleaned = [];
+        foreach ($obf_info as $index => $item) {
+            if(preg_match('#App\.php#', $item) || preg_match('#autoloader\.php#', $item)) {
+                continue;
+            }
+            $obf_info_cleaned[] = $item;
+        }
+
+        $this->assertEquals($app_info, $obf_info_cleaned);
+
+        // Verifica se todos os arquivos PHP
+        // foram devidamente ofuscados
+        foreach($obf_info_cleaned as $item) {
             $ob_file = $obf_dir . $item;
             if ($ob->method('isPhpFilename', $ob_file)) {
                 $this->assertTrue($ob->isObfuscatedFile($ob_file));
@@ -237,26 +263,75 @@ class ObfuscateDiretoryTest extends TestCase
         $this->assertEquals($list_index, $list_info);
     }
 
+    /**
+     * O generateAutoloader sempre retornará true porque a validade do diretório
+     * já foi verificada no método saveDiretory(). False só será retornado
+     * se for um erro de hardware :(
+     *
+     * @return void
+     */
     public function testGenerateAutoloader()
     {
         $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_generate_autoloader');
 
         $ob = new ObfuscateDirectoryAccessor;
+
+        // Gera uma lista com os arquivos php contidos no diretório especificado
         $list_index = $ob->method('makeIndex', $app_dir);
 
-        $autoloader = $ob->method('generateAutoloader', $list_index);
-        $this->assertEquals('The obfuscation directory was not set', $ob->getLastErrorMessage());
+        // No momento que generateAutoloader é invocado,
+        // a biblioteca já validou e possui o diretório de ofuscação
+        $ob->property('obfuscated_path', $obf_dir);
 
-        // TODO teste incompleto
+        // Agora o autoloader pode ser gerado no diretório de ofuscação
+        $this->assertTrue($ob->method('generateAutoloader', $list_index));
+        $autoloader_generated = $obf_dir . DIRECTORY_SEPARATOR . 'autoloader.php';
+        $this->assertTrue(is_file($autoloader_generated));
 
+        // Verifica se todos os arquivos estão no autoloader
+        $contents = file_get_contents($autoloader_generated);
+        foreach($list_index as $item) {
+            $this->assertRegexp("#{$item}#", $contents);
+        }
+
+        // Marca o arquivo gerado para o garbage collector limpar
+        self::addGarbageItem($autoloader_generated);
     }
 
+    /**
+     * O testSetupAutoloader sempre retornará true porque a validade dos
+     * diretórios de origem e ofuscação já foi verificada no método
+     * saveDiretory(). False só será retornado se for um erro de hardware :(
+     *
+     * @return void
+     */
     public function testSetupAutoloader()
     {
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_setup_autoload');
 
-        //setupAutoloader
+        // Ofusca o diretório
+        $ob = new ObfuscateDirectoryAccessor;
 
-        $this->markTestIncomplete('Não implementado');
+        // No momento que setupAutoloader é invocado,
+        // a biblioteca já validou e possui o diretório de origem e de ofuscação
+        $ob->property('plain_path', $app_dir);
+        $ob->property('obfuscated_path', $obf_dir);
+
+        // Para o autoloader ser gerado é necessário
+        // que a biblioteca saiba o diretório dos arquivos ofuscados
+        $this->assertTrue($ob->method('setupAutoloader'));
+
+        $autoloader_generated = $obf_dir . DIRECTORY_SEPARATOR . 'autoloader.php';
+        $this->assertTrue(is_file($autoloader_generated));
+
+        // Marca o arquivo gerado para o garbage collector limpar
+        self::addGarbageItem($autoloader_generated);
+
+        foreach($ob->getObfuscatedIndex() as $item) {
+            self::addGarbageItem($item);
+        }
     }
 
     public function testFinal()

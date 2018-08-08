@@ -176,9 +176,9 @@ class ObfuscateFile
      * Verifica se o arquivo especificado já está ofuscado.
      *
      * @param  string $obfuscated_file
-     * @return \Obfuscator\Libs\PhpObfuscator
+     * @return true
      */
-    public function isObfuscatedFile($obfuscated_file)
+    public function isObfuscatedFile(string $obfuscated_file) : bool
     {
         $contents = \file_get_contents($obfuscated_file);
         if ($contents === false) {

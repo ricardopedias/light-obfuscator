@@ -51,6 +51,13 @@ class ObfuscateDirectory extends ObfuscateFile
     protected $links = [];
 
     /**
+     * Lista de arquivos resultantes da ofuscação.
+     *
+     * @var array
+     */
+    protected $obfuscated_index = [];
+
+    /**
      * Adiciona uma mensagem na pilha de erros.
      *
      * @param string $message
@@ -88,13 +95,37 @@ class ObfuscateDirectory extends ObfuscateFile
     }
 
     /**
+     * Seta o nome do arquivo que conterá as funções de reversão.
+     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
+     * e adicionado no arquivo 'autoloader.php' da aplicação.
+     *
+     * @return string
+     */
+    public function setUnpackFile(string $php_file): bool
+    {
+        $this->unpack_file = \pathinfo($php_file, PATHINFO_FILENAME) . ".php";
+        return true;
+    }
+
+    /**
+     * Verifica se o diretório especificado já está ofuscado.
+     *
+     * @param  string $obfuscated_directory
+     * @return boolean
+     */
+    public function isObfuscatedDirectory(string $obfuscated_directory) : bool
+    {
+        return true;
+    }
+
+    /**
      * Seta o caminho completo até o diretório contendo
      * os arquivos que devem ser ofuscados.
      *
-     * @param string $path
-     * @return bool
+     * @param  string $path
+     * @return boolean
      */
-    public function setPlainPath(string $path): bool
+    public function obfuscateDirectory(string $path) : bool
     {
         $this->plain_path = rtrim($path, "/");
         if (is_dir($this->plain_path) === false) {
@@ -111,24 +142,13 @@ class ObfuscateDirectory extends ObfuscateFile
     }
 
     /**
-     * Devolve a localização do diretório contendo
-     * os arquivos que devem ser ofuscados.
+     * Salva um diretório com todos os arquivos PHP ofuscados
+     * no caminho especificado.
      *
-     * @return string
+     * @param  string $path
+     * @return bool
      */
-    public function getPlainPath()
-    {
-        return $this->plain_path;
-    }
-
-    /**
-     * Seta o caminho completo até o diretório contendo
-     * os arquivos que devem ser ofuscados.
-     *
-     * @param string $path
-     * @return Obfuscator\Libs\PhpObfuscator
-     */
-    public function setObfuscatedPath(string $path) : bool
+    public function saveDirectory(string $path) : bool
     {
         $this->obfuscated_path = rtrim($path, "/");
         if(is_dir($this->obfuscated_path) === false) {
@@ -141,7 +161,24 @@ class ObfuscateDirectory extends ObfuscateFile
             return false;
         }
 
-        return true;
+        if ($this->obfuscateDirectoryDeep($this->plain_path, $this->obfuscated_path) == true ) {
+            // Diretório ofuscado com sucesso,
+            // gera o autoloader
+            return $this->setupAutoloader();
+        }
+
+        return false;
+    }
+
+    /**
+     * Devolve a localização do diretório contendo
+     * os arquivos que devem ser ofuscados.
+     *
+     * @return string
+     */
+    public function getPlainPath()
+    {
+        return $this->plain_path;
     }
 
     /**
@@ -152,42 +189,18 @@ class ObfuscateDirectory extends ObfuscateFile
      */
     public function getObfuscatedPath()
     {
-        if ($this->obfuscated_path === null && $this->plain_path !== null ) {
-            $base_name = \pathinfo($this->plain_path, PATHINFO_BASENAME) . '_obfuscated';
-            return dirname($this->plain_path) . DIRECTORY_SEPARATOR . $base_name;
-        }
-
         return $this->obfuscated_path;
     }
 
     /**
-     * Seta o nome do arquivo que conterá as funções de reversão.
-     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
-     * e adicionado no arquivo 'autoloader.php' da aplicação.
+     * Devolve a lista de arquivos contidos no diretório de destino
+     * após o processo de ofuscação.
      *
-     * @return string
+     * @return array
      */
-    public function setUnpackFile(string $php_file): bool
+    public function getObfuscatedIndex() : array
     {
-        $this->unpack_file = \pathinfo($php_file, PATHINFO_FILENAME) . ".php";
-        return true;
-    }
-
-    /**
-     * Devolve a localização do arquivo que conterá as funções de reversão.
-     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
-     * e adicionado no arquivo 'autoloader.php' da aplicação.
-     *
-     * @return string
-     */
-    public function getUnpackFile()
-    {
-        if ($this->getObfuscatedPath() === null) {
-            $this->addErrorMessage("The obfuscation directory was not set");
-            return null;
-        }
-
-        return $this->getObfuscatedPath() . DIRECTORY_SEPARATOR . $this->unpack_file;
+        return $this->obfuscated_index;
     }
 
     /**
@@ -227,14 +240,14 @@ class ObfuscateDirectory extends ObfuscateFile
     }
 
     /**
-     * Varre o o diretório especificado, ofuscando os arquivos e
-     * salvando no diretório de destino.
+     * Varre o diretório com os arquivos a serem ofuscados, ofusca-os e salva no diretório
+     * de ofuscação.
      *
      * @param  string $path_plain
      * @param  string $path_obfuscated
-     * @return boolean
+     * @return bool
      */
-    public function obfuscateDirectory(string $path_plain, string $path_obfuscated) : bool
+    private function obfuscateDirectoryDeep(string $path_plain, string $path_obfuscated) : bool
     {
         // Lista os arquivos do diretório
         $list = scandir($path_plain);
@@ -291,7 +304,7 @@ class ObfuscateDirectory extends ObfuscateFile
 
             } elseif (is_dir($iterate_current_item) ) {
 
-                if ($this->obfuscateDirectory($iterate_current_item, $iterate_obfuscated_item) == false) {
+                if ($this->obfuscateDirectoryDeep($iterate_current_item, $iterate_obfuscated_item) == false) {
                     return false;
                 }
             }
@@ -306,12 +319,11 @@ class ObfuscateDirectory extends ObfuscateFile
      *
      * @return bool
      */
-    public function setupAutoloader() : bool
+    protected function setupAutoloader() : bool
     {
-        $obfuscated_path = $this->getObfuscatedPath();
-
         // Gera uma lista com todos os arquivos PHP
         // que foram ofuscados
+        $obfuscated_path = $this->getObfuscatedPath();
         $index = $this->makeIndex($obfuscated_path);
 
         // Salva o arquivo contendo as funções
@@ -324,10 +336,10 @@ class ObfuscateDirectory extends ObfuscateFile
 
         // Adiciona o arquivo de reversão como o
         // primeiro da lista no autoloader
-        $index = array_merge([$revert_file], $index);
+        $this->obfuscated_index = array_merge([$revert_file], $index);
 
         // Cria o autoloader com os arquivos ofuscados
-        if ($this->generateAutoloader($index) == false) {
+        if ($this->generateAutoloader($this->obfuscated_index) == false) {
             $this->addErrorMessage("Error creating autoloader file");
             return false;
         }
@@ -383,6 +395,18 @@ class ObfuscateDirectory extends ObfuscateFile
     }
 
     /**
+     * Devolve a localização do arquivo que conterá as funções de reversão.
+     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
+     * e adicionado no arquivo 'autoloader.php' da aplicação.
+     *
+     * @return string
+     */
+    private function getUnpackFile()
+    {
+        return $this->getObfuscatedPath() . DIRECTORY_SEPARATOR . $this->unpack_file;
+    }
+
+    /**
      * Gera um carregador para os arquivos ofuscados.
      *
      * @param  array $list_files
@@ -390,11 +414,6 @@ class ObfuscateDirectory extends ObfuscateFile
      */
     protected function generateAutoloader(array $list_files) : bool
     {
-        if ($this->getObfuscatedPath() === null) {
-            $this->addErrorMessage("The obfuscation directory was not set");
-            return false;
-        }
-
         $file = $this->getObfuscatedPath() . DIRECTORY_SEPARATOR . 'autoloader.php';
 
         $contents = "<?php \n\n";
