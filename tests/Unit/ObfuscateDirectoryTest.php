@@ -203,6 +203,15 @@ class ObfuscateDiretoryTest extends TestCase
         $obf_info = self::treeInfo($obf_dir, $obf_dir);
         $this->assertEquals($app_info, $obf_info);
 
+        // Verifica se todos os arquivos PHP
+        // foram devidamente ofuscados
+        foreach($obf_info as $item) {
+            $ob_file = $obf_dir . $item;
+            if ($ob->method('isPhpFilename', $ob_file)) {
+                $this->assertTrue($ob->isObfuscatedFile($ob_file));
+            }
+        }
+
         // Marca os arquivos e diretórios gerados pela ofuscação
         // para o garbage collector possa remover
         foreach($obf_info as $item) {
