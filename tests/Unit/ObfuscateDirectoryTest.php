@@ -4,18 +4,43 @@ namespace PhpObfuscator\Tests\Unit;
 use Tests\TestCase;
 use PhpObfuscator\Tests\Libs\ObfuscateDirectoryAccessor;
 use PhpObfuscator\Tests\Libs\BaseTools;
-use PhpObfuscator\ObfuscateDiretory;
+use PhpObfuscator\ObfuscateDirectory;
 
-class ObfuscateDiretoryTest extends TestCase
+class ObfuscateDirectoryTest extends TestCase
 {
     use BaseTools;
+
+    public function testAddRuntimeMessage()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addRuntimeMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addRuntimeMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addRuntimeMessage('ccc'));
+
+        $this->assertCount(3, $ob->getRuntimeMessages());
+        $this->assertEquals($ob->getRuntimeMessages()[0], 'aaa');
+        $this->assertEquals($ob->getRuntimeMessages()[1], 'bbb');
+        $this->assertEquals($ob->getRuntimeMessages()[2], 'ccc');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage aaa
+     */
+    public function testAddErrorException()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+        $ob->enableThrowErrors();
+
+        $ob->addErrorMessage('aaa');
+    }
 
     public function testAddErrorMessage()
     {
         $ob = new ObfuscateDirectoryAccessor;
-        $ob->addErrorMessage('aaa');
-        $ob->addErrorMessage('bbb');
-        $ob->addErrorMessage('ccc');
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('ccc'));
 
         $this->assertCount(3, $ob->getErrorMessages());
         $this->assertEquals($ob->getErrorMessages()[0], 'aaa');
@@ -26,9 +51,9 @@ class ObfuscateDiretoryTest extends TestCase
     public function testLastErrorMessage()
     {
         $ob = new ObfuscateDirectoryAccessor;
-        $ob->addErrorMessage('aaa');
-        $ob->addErrorMessage('bbb');
-        $ob->addErrorMessage('ccc');
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addErrorMessage('ccc'));
 
         $this->assertCount(3, $ob->getErrorMessages());
 
@@ -50,12 +75,12 @@ class ObfuscateDiretoryTest extends TestCase
         $ob->obfuscateDirectory($obf_dir);
 
         // O caminho é resolvido com o nome personalizado 'AAA.php'
-        $this->assertTrue($ob->setUnpackFile('AAA.php'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->setUnpackFile('AAA.php'));
         $this->assertEquals('AAA.php', $ob->property('unpack_file'));
 
         // O caminho é resolvido com o nome personalizado
         // Nomes sem extenção são resolvidos automaticamente
-        $this->assertTrue($ob->setUnpackFile('BBB'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->setUnpackFile('BBB'));
         $this->assertEquals('BBB.php', $ob->property('unpack_file'));
     }
 

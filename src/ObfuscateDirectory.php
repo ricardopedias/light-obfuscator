@@ -28,20 +28,13 @@ class ObfuscateDirectory extends ObfuscateFile
     protected $obfuscated_path = null;
 
     /**
-     * Nome do arquivo que que conterá as funções de reversão.
-     * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
+     * Nome do arquivo que conterá as funções de reversão.
+     * Este arquivo será gerado pelo processo de ofuscação automaticamente
      * e adicionado no arquivo 'autoloader.php' da aplicação.
      *
      * @var string
      */
     protected $unpack_file = 'App.php';
-
-    /**
-     * Armazena as mensagens disparadas pelo processo de ofuscação.
-     *
-     * @var array
-     */
-    protected $errors_messages = [];
 
     /**
      * Links encontrados no processo de ofuscação.
@@ -52,59 +45,23 @@ class ObfuscateDirectory extends ObfuscateFile
 
     /**
      * Lista de arquivos resultantes da ofuscação.
+     * Esta lista é populada na invocação no método setupAutoloader()
      *
      * @var array
      */
     protected $obfuscated_index = [];
 
     /**
-     * Adiciona uma mensagem na pilha de erros.
-     *
-     * @param string $message
-     * @return bool
-     */
-    public function addErrorMessage(string $message) : bool
-    {
-        $this->errors_messages[] = $message;
-        return true;
-    }
-
-    /**
-     * Devolve as mensagens de erro ocorridas no processo.
-     *
-     * @param string $message
-     * @return bool
-     */
-    public function getErrorMessages() : array
-    {
-        return $this->errors_messages;
-    }
-
-    /**
-     * Devolve a última mensafgem de erro ocorrida.
-     *
-     * @return mixed|false
-     */
-    public function getLastErrorMessage()
-    {
-        end($this->errors_messages);
-        $value = current($this->errors_messages);
-        reset($this->errors_messages);
-
-        return $value;
-    }
-
-    /**
      * Seta o nome do arquivo que conterá as funções de reversão.
      * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
      * e adicionado no arquivo 'autoloader.php' da aplicação.
      *
-     * @return string
+     * @return ObfuscateDirectory
      */
-    public function setUnpackFile(string $php_file): bool
+    public function setUnpackFile(string $php_file): ObfuscateDirectory
     {
         $this->unpack_file = \pathinfo($php_file, PATHINFO_FILENAME) . ".php";
-        return true;
+        return $this;
     }
 
     /**
@@ -207,8 +164,8 @@ class ObfuscateDirectory extends ObfuscateFile
      * Cria o diretório especificado no sistema de arquivos.
      *
      * @param  string  $path
-     * @param  boolean $force
-     * @return boolean
+     * @param  bool $force
+     * @return bool
      */
     protected function makeDir(string $path, bool $force = false) : bool
     {
@@ -231,7 +188,7 @@ class ObfuscateDirectory extends ObfuscateFile
      * Verifica se o nome especificado é para um arquivo PHP.
      *
      * @param  string $filename
-     * @return boolean
+     * @return bool
      */
     protected function isPhpFilename(string $filename) : bool
     {

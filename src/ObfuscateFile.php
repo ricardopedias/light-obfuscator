@@ -9,12 +9,6 @@ declare(strict_types=1);
 
 namespace PhpObfuscator;
 
-/**
- * Esta biblioteca ofusca o código PHP, adicionando dependencias que serão
- * exigidas no momento da reversão da ofuscação.
- * Para que os arquivos resultantes sejam executados com sucesso, o conteúdo
- * do arquivo RevertObfuscation.php deve estar acessível para o código ofuscado.
- */
 class ObfuscateFile
 {
     /**
@@ -26,19 +20,20 @@ class ObfuscateFile
     private $decode_errors = true;
 
     /**
+     * Controla como os erros devem ser tratados, pondendo ser armazenados na
+     * pilha para posterior recuperação, ou se devem ser emitidos como exceções.
+     *
+     * @var bool
+     */
+    private $throw_errors = false;
+
+    /**
      * O código resultante do processo de ofuscação
      * é armazenado neste atributo.
      *
      * @var string
      */
     private $obfuscated    = '';
-
-    /**
-     * Armazena os erros ocorridos no momento de gerar o código ofuscado.
-     *
-     * @var array
-     */
-    private $encoding_messages        = [];
 
     /**
      * Função usada para desempacotar o código.
@@ -89,15 +84,122 @@ class ObfuscateFile
     ];
 
     /**
+     * Armazena mensagens emitidas no momento de gerar o código ofuscado.
+     * Não são erros, mas apenas avisos de algum evento ocorrido.
+     *
+     * @var array
+     */
+    private $runtime_messages        = [];
+
+    /**
+     * Armazena as mensagens de erro disparadas pelo processo de ofuscação.
+     *
+     * @var array
+     */
+    protected $errors_messages = [];
+
+    /**
+     * Adiciona uma mensagem de tempo de execução.
+     * Não são erros, mas apenas avisos de algum evento ocorrido.
+     *
+     * @param string $message
+     * @return \PhpObfuscator\ObfuscateFile
+     */
+    public function addRuntimeMessage(string $message) : self
+    {
+        $this->runtime_messages[] = $message;
+        return $this;
+    }
+
+    /**
+     * Devolve as mensagens de tempo de execução.
+     *
+     * @param string $message
+     * @return bool
+     */
+    public function getRuntimeMessages() : array
+    {
+        return $this->runtime_messages;
+    }
+
+    /**
+     * Devolve a última mensafgem de runtime ocorrida.
+     *
+     * @return mixed|false
+     */
+    public function getLastRuntimeMessage()
+    {
+        end($this->runtime_messages);
+        $value = current($this->runtime_messages);
+        reset($this->runtime_messages);
+
+        return $value;
+    }
+
+    /**
+     * Adiciona uma mensagem na pilha de erros.
+     *
+     * @param string $message
+     * @return \PhpObfuscator\ObfuscateFile
+     */
+    public function addErrorMessage(string $message) : self
+    {
+        if ($this->throw_errors == true) {
+            throw new \RuntimeException($message);
+        }
+
+        $this->errors_messages[] = $message;
+        return $this;
+    }
+
+    /**
+     * Devolve as mensagens de erro ocorridas no processo.
+     *
+     * @param string $message
+     * @return bool
+     */
+    public function getErrorMessages() : array
+    {
+        return $this->errors_messages;
+    }
+
+    /**
+     * Devolve a última mensagem de erro ocorrida.
+     *
+     * @return mixed|false
+     */
+    public function getLastErrorMessage()
+    {
+        end($this->errors_messages);
+        $value = current($this->errors_messages);
+        reset($this->errors_messages);
+
+        return $value;
+    }
+
+    /**
      * Controla se o código, depois de ofuscado, pode disparar erros para o
      * usuário ou se eles devem ocorrer silenciosamente sem ser reportados
      *
      * @param  boolean $enable
-     * @return \Obfuscator\Libs\PhpObfuscator
+     * @return \PhpObfuscator\ObfuscateFile
      */
-    public function enableDecodeErrors($enable = true)
+    public function enableDecodeErrors($enable = true) : self
     {
         $this->decode_errors = $enable;
+        return $this;
+    }
+
+    /**
+     * Controla se o código, depois de ofuscado, pode disparar erros para o
+     * usuário ou se eles devem ocorrer silenciosamente sem ser reportados
+     *
+     * @param  boolean $enable
+     * @return \PhpObfuscator\ObfuscateFile
+     */
+    public function enableThrowErrors($enable = true) : self
+    {
+        $this->throw_errors = $enable;
         return $this;
     }
 
@@ -201,12 +303,13 @@ class ObfuscateFile
      * Ofusca o arquivo especificado e armazena-o na memória.
      *
      * @param  string $origin_file
-     * @return \Obfuscator\Libs\PhpObfuscator
+     * @return bool
      */
-    public function obfuscateFile($origin_file)
+    public function obfuscateFile(string $origin_file) : bool
     {
         if (strtolower(pathinfo($origin_file, PATHINFO_EXTENSION)) != 'php') {
-            throw new \Exception("Apenas arquivos PHP podem ser ofuscados!");
+            $this->addErrorMessage("Only PHP files can be obfuscated!");
+            return false;
         }
 
         // Remove os espaços e comentários do arquivo
@@ -215,11 +318,11 @@ class ObfuscateFile
         $this->obfuscated = $this->obfuscateString($contents);
 
         if ($this->obfuscated == false) {
-            $this->encoding_messages[] = 'Código misto encontrado. Arquivo não ofuscado.';
+            $this->addRuntimeMessage("Mixed code found. File not obfuscated!");
             $this->obfuscated = $contents;
         }
 
-        return $this;
+        return true;
     }
 
     /**
@@ -345,7 +448,7 @@ class ObfuscateFile
      * @param  string $path_destiny
      * @return bool
      */
-    public function save($path_destiny)
+    public function save(string $path_destiny) : bool
     {
         return (file_put_contents($path_destiny, $this->getObfuscated()) !== false);
     }
@@ -358,7 +461,7 @@ class ObfuscateFile
      * @param  string $path_destiny
      * @return bool
      */
-    public function saveRevertFile($path_destiny)
+    public function saveRevertFile(string $path_destiny) : bool
     {
         $contents = $this->getRevertFileContents(true); // true = conteudo ofuscado
         return (file_put_contents($path_destiny, $contents) !== false);

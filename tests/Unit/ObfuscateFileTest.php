@@ -17,8 +17,74 @@ class ObfuscateFileTest extends TestCase
         'PhpClassClosed.stub',
         'PhpClassNamespaced.stub',
         'PhpProcedural.stub',
-        'PhpProceduralClosed.stub',
+        'PhpProceduralClosed.stub'
     ];
+
+    public function testAddRuntimeMessage()
+    {
+        $ob = new ObfuscateFileAccessor;
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('ccc'));
+
+        $this->assertCount(3, $ob->getRuntimeMessages());
+        $this->assertEquals($ob->getRuntimeMessages()[0], 'aaa');
+        $this->assertEquals($ob->getRuntimeMessages()[1], 'bbb');
+        $this->assertEquals($ob->getRuntimeMessages()[2], 'ccc');
+    }
+
+    public function testLastRuntimeMessage()
+    {
+        $ob = new ObfuscateFileAccessor;
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addRuntimeMessage('ccc'));
+
+        $this->assertCount(3, $ob->getRuntimeMessages());
+
+        $this->assertEquals($ob->getLastRuntimeMessage(), 'ccc');
+        $ob->addRuntimeMessage('ddd');
+        $this->assertEquals($ob->getLastRuntimeMessage(), 'ddd');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage aaa
+     */
+    public function testAddErrorException()
+    {
+        $ob = new ObfuscateFileAccessor;
+        $ob->enableThrowErrors();
+
+        $ob->addErrorMessage('aaa');
+    }
+
+    public function testAddErrorMessage()
+    {
+        $ob = new ObfuscateFileAccessor;
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('ccc'));
+
+        $this->assertCount(3, $ob->getErrorMessages());
+        $this->assertEquals($ob->getErrorMessages()[0], 'aaa');
+        $this->assertEquals($ob->getErrorMessages()[1], 'bbb');
+        $this->assertEquals($ob->getErrorMessages()[2], 'ccc');
+    }
+
+    public function testLastErrorMessage()
+    {
+        $ob = new ObfuscateFileAccessor;
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('aaa'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('bbb'));
+        $this->assertInstanceOf(ObfuscateFile::class, $ob->addErrorMessage('ccc'));
+
+        $this->assertCount(3, $ob->getErrorMessages());
+
+        $this->assertEquals($ob->getLastErrorMessage(), 'ccc');
+        $ob->addErrorMessage('ddd');
+        $this->assertEquals($ob->getLastErrorMessage(), 'ddd');
+    }
 
     public function testPhpWrapperRemove()
     {
@@ -126,10 +192,16 @@ class ObfuscateFileTest extends TestCase
         $this->assertTrue((new ObfuscateFile)->isObfuscatedFile($obfuscated));
     }
 
-
     //
     // Ofuscação e Execução
     //
+
+    public function testObfuscateFileError()
+    {
+        $ob = new ObfuscateFile;
+        $this->assertFalse($ob->obfuscateFile('arquivo-nao-php.html'));
+        $this->assertEquals('Only PHP files can be obfuscated!', $ob->getLastErrorMessage());
+    }
 
      /**
       * @expectedException Error
@@ -141,7 +213,8 @@ class ObfuscateFileTest extends TestCase
         $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
-        $ob = (new ObfuscateFile)->obfuscateFile($origin);
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
         $this->assertTrue($ob->save($saved_file));
 
         // Esta chamada deve emitir um erro no PHP
@@ -159,7 +232,8 @@ class ObfuscateFileTest extends TestCase
         $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
-        $ob = (new ObfuscateFile)->obfuscateFile($origin);
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
         $this->assertTrue($ob->save($saved_file));
 
         // Esta chamada deve emitir um erro no PHP
@@ -177,7 +251,8 @@ class ObfuscateFileTest extends TestCase
         $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
-        $ob = (new ObfuscateFile)->obfuscateFile($origin);
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
         $this->assertTrue($ob->save($saved_file));
 
         // Esta chamada deve emitir um erro no PHP
@@ -195,7 +270,8 @@ class ObfuscateFileTest extends TestCase
         $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
-        $ob = (new ObfuscateFile)->obfuscateFile($origin);
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
         $this->assertTrue($ob->save($saved_file));
 
         // Esta chamada deve emitir um erro no PHP
@@ -213,12 +289,27 @@ class ObfuscateFileTest extends TestCase
         $saved_file = self::makeTempFile();
 
         // Ofusca o arquivo e salva do disco
-        $ob = (new ObfuscateFile)->obfuscateFile($origin);
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
         $this->assertTrue($ob->save($saved_file));
 
         // Esta chamada deve emitir um erro no PHP
         // pois a invocação não é possivel sem a reversão
         \PhpProceduralClosed();
+    }
+
+    public function testObfuscatePhpProceduralMixed()
+    {
+        $origin = self::getStubFile('PhpProceduralMixed.stub');
+        $saved_file = self::makeTempFile();
+
+        // Ofusca o arquivo e salva do disco
+        $ob = new ObfuscateFile;
+        $this->assertTrue($ob->obfuscateFile($origin));
+        $this->assertTrue($ob->save($saved_file));
+
+        $this->assertEquals('Mixed code found. File not obfuscated!', $ob->getLastRuntimeMessage());
+
     }
 
     public function testGetRevertFileContents()
