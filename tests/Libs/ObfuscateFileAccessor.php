@@ -1,7 +1,13 @@
 <?php
-namespace PhpObfuscator\Tests\Libs;
+/**
+ * @see       https://github.com/rpdesignerfly/light-obfuscator
+ * @copyright Copyright (c) 2018 Ricardo Pereira Dias (https://rpdesignerfly.github.io)
+ * @license   https://github.com/rpdesignerfly/light-obfuscator/blob/master/license.md
+ */
 
-use PhpObfuscator\ObfuscateFile;
+namespace LightObfuscator\Tests\Libs;
+
+use LightObfuscator\ObfuscateFile;
 
 class ObfuscateFileAccessor extends ObfuscateFile
 {

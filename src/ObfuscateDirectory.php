@@ -1,13 +1,13 @@
 <?php
 /**
- * @see       https://github.com/rpdesignerfly/artisan-obfuscator
+ * @see       https://github.com/rpdesignerfly/light-obfuscator
  * @copyright Copyright (c) 2018 Ricardo Pereira Dias (https://rpdesignerfly.github.io)
- * @license   https://github.com/rpdesignerfly/artisan-obfuscator/blob/master/license.md
+ * @license   https://github.com/rpdesignerfly/light-obfuscator/blob/master/license.md
  */
 
 declare(strict_types=1);
 
-namespace PhpObfuscator;
+namespace LightObfuscator;
 
 class ObfuscateDirectory extends ObfuscateFile
 {

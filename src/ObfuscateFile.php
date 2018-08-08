@@ -1,13 +1,13 @@
 <?php
 /**
- * @see       https://github.com/rpdesignerfly/artisan-obfuscator
+ * @see       https://github.com/rpdesignerfly/light-obfuscator
  * @copyright Copyright (c) 2018 Ricardo Pereira Dias (https://rpdesignerfly.github.io)
- * @license   https://github.com/rpdesignerfly/artisan-obfuscator/blob/master/license.md
+ * @license   https://github.com/rpdesignerfly/light-obfuscator/blob/master/license.md
  */
 
 declare(strict_types=1);
 
-namespace PhpObfuscator;
+namespace LightObfuscator;
 
 class ObfuscateFile
 {
@@ -103,7 +103,7 @@ class ObfuscateFile
      * Não são erros, mas apenas avisos de algum evento ocorrido.
      *
      * @param string $message
-     * @return \PhpObfuscator\ObfuscateFile
+     * @return \LightObfuscator\ObfuscateFile
      */
     public function addRuntimeMessage(string $message) : self
     {
@@ -140,7 +140,7 @@ class ObfuscateFile
      * Adiciona uma mensagem na pilha de erros.
      *
      * @param string $message
-     * @return \PhpObfuscator\ObfuscateFile
+     * @return \LightObfuscator\ObfuscateFile
      */
     public function addErrorMessage(string $message) : self
     {
@@ -182,7 +182,7 @@ class ObfuscateFile
      * usuário ou se eles devem ocorrer silenciosamente sem ser reportados
      *
      * @param  boolean $enable
-     * @return \PhpObfuscator\ObfuscateFile
+     * @return \LightObfuscator\ObfuscateFile
      */
     public function enableDecodeErrors($enable = true) : self
     {
@@ -195,7 +195,7 @@ class ObfuscateFile
      * usuário ou se eles devem ocorrer silenciosamente sem ser reportados
      *
      * @param  boolean $enable
-     * @return \PhpObfuscator\ObfuscateFile
+     * @return \LightObfuscator\ObfuscateFile
      */
     public function enableThrowErrors($enable = true) : self
     {

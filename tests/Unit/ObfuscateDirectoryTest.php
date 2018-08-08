@@ -1,10 +1,16 @@
 <?php
-namespace PhpObfuscator\Tests\Unit;
+/**
+ * @see       https://github.com/rpdesignerfly/light-obfuscator
+ * @copyright Copyright (c) 2018 Ricardo Pereira Dias (https://rpdesignerfly.github.io)
+ * @license   https://github.com/rpdesignerfly/light-obfuscator/blob/master/license.md
+ */
+
+namespace LightObfuscator\Tests\Unit;
 
 use Tests\TestCase;
-use PhpObfuscator\Tests\Libs\ObfuscateDirectoryAccessor;
-use PhpObfuscator\Tests\Libs\BaseTools;
-use PhpObfuscator\ObfuscateDirectory;
+use LightObfuscator\Tests\Libs\ObfuscateDirectoryAccessor;
+use LightObfuscator\Tests\Libs\BaseTools;
+use LightObfuscator\ObfuscateDirectory;
 
 class ObfuscateDirectoryTest extends TestCase
 {
