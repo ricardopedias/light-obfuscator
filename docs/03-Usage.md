@@ -14,7 +14,6 @@ fornecendo o caminho completo até o arquivo PHP a ser procesado e também a loc
 $ob = new LightObfuscator\ObfuscateFile;
 $ob->obfuscateFile('/var/www/app/projeto/arquivo.php');
 $ob->save('/var/www/app/projeto/ofuscado.php');
-$ob->saveRevertFile('/var/www/app/projeto/revert.php');
 ```
 
 ```php

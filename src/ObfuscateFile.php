@@ -60,27 +60,25 @@ class ObfuscateFile
      * @todo Mudar isso para que os nomes sejam gerados dinamicamente
      */
     protected $map_packer_functions = [
-        'cfForgetShow'  => 'packerOne',
-        'cryptOf'       => 'packerTwo',
-        'unsetZeros'    => 'packerOne',
-        'deflatingNow'  => 'packerTwo',
-        'zeroizeCipher' => 'packerThree',
-        'iqutZ'         => 'packerTwo',
-        'sagaPlus'      => 'packerThree',
+        /*
+        'func_96846372909684637290968463729023'  => 'packerOne',
+        'func_36474837299684342590968463724529'  => 'packerTwo',
+        'func_29384647389684639824968463722536'  => 'packerThree',
+        ...
+        */
     ];
 
     /**
      * Lista com as funções usadas para parametrizar o desempacotamento.
      *
      * @var array
-     * @todo Mudar isso para que os nomes sejam gerados dinamicamente
      */
     protected $map_argumenter_functions = [
-        'decompressMD5',
-        'unsetLogger',
-        'loopNested',
-        'vorticeData',
-        'cipherBinary'
+        /*
+        0 => 'func_96846372909684637290968463729023',
+        1 => 'func_36474837299684342590968463724529',
+        ...
+        */
     ];
 
     /**
@@ -89,7 +87,7 @@ class ObfuscateFile
      *
      * @var array
      */
-    private $runtime_messages        = [];
+    private $runtime_messages = [];
 
     /**
      * Armazena as mensagens de erro disparadas pelo processo de ofuscação.
@@ -97,6 +95,26 @@ class ObfuscateFile
      * @var array
      */
     protected $errors_messages = [];
+
+    public function __construct()
+    {
+        $list = [
+            'packerOne',
+            'packerTwo',
+            'packerThree',
+        ];
+
+        for ($x=0; $x<10; $x++) {
+
+            // Funções desempacotadoras
+            $packer_name = "func_" . md5(uniqid("a" . $x . rand(), true));
+            $this->map_packer_functions[$packer_name] = $list[array_rand($list)];
+
+            // Funções argumentadoras
+            $argumenter_name = "func_" . md5(uniqid("a" . $x . rand(), true));
+            $this->map_argumenter_functions[] = $argumenter_name;
+        }
+    }
 
     /**
      * Adiciona uma mensagem de tempo de execução.
@@ -275,6 +293,17 @@ class ObfuscateFile
     }
 
     /**
+     * Adiciona o invólucro do PHP <?php
+     *
+     * @param string $code Código php
+     * @return string
+     */
+    protected function phpWrapperAdd(string $code)
+    {
+        return "<?php " . $code;
+    }
+
+    /**
      * Verifica se o arquivo especificado já está ofuscado.
      *
      * @param  string $obfuscated_file
@@ -361,7 +390,7 @@ class ObfuscateFile
         $string.= "'" . $this->{$packer_method . "Pack"}($code) . "'";  // executa a função compactar
         $string.= $this->toASCII(",{$argumenter}()));");
 
-        return "<?php eval(\"{$string}\");";
+        return "eval(\"{$string}\");";
     }
 
     /**
@@ -395,7 +424,9 @@ class ObfuscateFile
 
         // A função php_zencodign é usada para ofuscar as 'funções de descompressão'
         // usadas para desafazer a ofuscação de todos os arquivos php
-        $php_zencoding = "function php_zencoding(\$data)\n" . $this->extractMethod('packerOneUnpack');
+        $php_zencoding  = "if(function_exists('php_zencoding') == false){\n";
+        $php_zencoding .= "function php_zencoding(\$data)\n" . $this->extractMethod('packerOneUnpack');
+        $php_zencoding .= "\n}";
 
         // Esconde a função de desempacotamento no próprio arquivo
         $zen = '';
@@ -409,7 +440,7 @@ class ObfuscateFile
         $string.= "'" . $this->packerOnePack($code) . "'";         // comprime o código
         $string.= $this->toASCII("));");
 
-        return "<?php eval(\"{$zen}\"); eval(\"{$string}\");";
+        return "eval(\"{$zen}\"); eval(\"{$string}\");";
     }
 
     /**
@@ -446,11 +477,19 @@ class ObfuscateFile
      * Salva um arquivo com o código ofuscado no caminho especificado.
      *
      * @param  string $path_destiny
+     * @param bool $self_contained
      * @return bool
      */
-    public function save(string $path_destiny) : bool
+    public function save(string $path_destiny, $self_contained = true) : bool
     {
-        return (file_put_contents($path_destiny, $this->getObfuscated()) !== false);
+        $contents = '';
+        if ($self_contained == true) {
+            $revert_functions = $this->getRevertFileContents();
+            $contents .= $this->obfuscateUnpackFunctions($revert_functions);
+        }
+
+        $contents .= $this->getObfuscated();
+        return (file_put_contents($path_destiny, $this->phpWrapperAdd($contents)) !== false);
     }
 
     /**
@@ -461,19 +500,20 @@ class ObfuscateFile
      * @param  string $path_destiny
      * @return bool
      */
-    public function saveRevertFile(string $path_destiny) : bool
+    protected function saveRevertFile(string $path_destiny) : bool
     {
-        $contents = $this->getRevertFileContents(true); // true = conteudo ofuscado
-        return (file_put_contents($path_destiny, $contents) !== false);
+        $contents   = $this->getRevertFileContents();
+        $obfuscated = $this->obfuscateUnpackFunctions($contents);
+        return (file_put_contents($path_destiny, $this->phpWrapperAdd($obfuscated)) !== false);
     }
 
     /**
      * Gera uma string contendo todas as funções de desempacotamento.
      *
-     * @param  boolean $obfuscate
+     * @param  boolean $use_php_wrapper
      * @return string
      */
-    protected function getRevertFileContents($obfuscate = true)
+    protected function getRevertFileContents()
     {
         $lines = [];
 
@@ -492,9 +532,12 @@ class ObfuscateFile
             // Renomeia o prefixo do método 'packerOne'
             // para nomear na função de desempacotamento como 'baseOne'
             $base_name = str_replace('packer', 'base', $method_name);
-            $lines[] = $sp . "function {$packer_name}(\$data, \$revert = false){\n"
+
+            $lines[] = "if (function_exists('{$packer_name}') == false){\n"
+                     . $sp . "function {$packer_name}(\$data, \$revert = false){\n"
                      . $sp .$sp . "return {$base_name}(\$data);\n"
-                     . $sp . "}\n";
+                     . $sp . "}\n"
+                     . "}";
         }
 
         // DESEMPACOTADORES REAIS:
@@ -505,10 +548,12 @@ class ObfuscateFile
             // Renomeia o prefixo do método 'packerOne'
             // para nomear na função de desempacotamento como 'baseOne'
             $base_name = str_replace('packer', 'base', $method_name);
-            $lines[] = $sp . "function {$base_name}(\$data)\n"
+            $lines[] = "if (function_exists('{$base_name}') == false){\n"
+                     . $sp . "function {$base_name}(\$data)\n"
                      // Extrai o conteúdo do método 'packer???Unpack'
                      // para gerar a função 'base???'
-                     . $this->extractMethod($method_name . 'Unpack');
+                     . $this->extractMethod($method_name . 'Unpack')
+                     . "}";
         }
 
         // ARGUMENTADORES RAMDÔMICOS:
@@ -518,11 +563,12 @@ class ObfuscateFile
         //
         // Veja como isso é feito no método wrapString
         foreach($this->map_argumenter_functions as $method_name) {
-            $lines[] = $sp . "function {$method_name}() { return TRUE; }\n";
+            $lines[] = "if (function_exists('{$method_name}') == false){\n"
+                     . $sp . "function {$method_name}() { return TRUE; }\n"
+                     . "}";
         }
 
-        $contents = "<?php\n" . implode("\n", $lines);
-        return ($obfuscate == true) ? $this->obfuscateUnpackFunctions($contents) : $contents;
+        return implode("\n", $lines);
     }
 
     /**

@@ -245,7 +245,9 @@ class ObfuscateDirectory extends ObfuscateFile
                         return false;
                     }
 
-                    if ($this->save($iterate_obfuscated_item) == false) {
+                    // Salva o arquivo sem a opção de 'auto-contido',
+                    // ou seja, ele não pode ser revertido sem os outros arquivos do diretório
+                    if ($this->save($iterate_obfuscated_item, false) == false) {
                         $this->addErrorMessage("Ocorreu um erro ao tentar salvar o arquivo ofuscado: {$iterate_obfuscated_item}");
                         return false;
                     }

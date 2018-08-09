@@ -1,6 +1,6 @@
 {
     "name": "plexi/light-obfuscator",
-    "description": "Ofuscador de projetos feitos com código PHP.",
+    "description": "Ofuscador de código para projetos feitos em PHP",
     "keywords": ["php","obfuscating","obfuscator"],
     "license": "MIT",
     "authors": [

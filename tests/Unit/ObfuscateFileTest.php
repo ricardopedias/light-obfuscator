@@ -209,101 +209,6 @@ class ObfuscateFileTest extends TestCase
         $this->assertEquals('Only PHP files can be obfuscated!', $ob->getLastErrorMessage());
     }
 
-     /**
-      * @expectedException Error
-      * @expectedExceptionMessage Class 'PhpClass' not found
-      */
-    public function testObfuscatePhpClass_Exception()
-    {
-        $origin = self::getStubFile('PhpClass.stub');
-        $saved_file = self::makeTempFile();
-
-        // Ofusca o arquivo e salva do disco
-        $ob = new ObfuscateFile;
-        $this->assertTrue($ob->obfuscateFile($origin));
-        $this->assertTrue($ob->save($saved_file));
-
-        // Esta chamada deve emitir um erro no PHP
-        // pois a invocação não é possivel sem a reversão
-        (new \PhpClass)->method();
-    }
-
-    /**
-     * @expectedException Error
-     * @expectedExceptionMessage Class 'PhpClassClosed' not found
-     */
-    public function testObfuscatePhpClassClosed_Exception()
-    {
-        $origin = self::getStubFile('PhpClassClosed.stub');
-        $saved_file = self::makeTempFile();
-
-        // Ofusca o arquivo e salva do disco
-        $ob = new ObfuscateFile;
-        $this->assertTrue($ob->obfuscateFile($origin));
-        $this->assertTrue($ob->save($saved_file));
-
-        // Esta chamada deve emitir um erro no PHP
-        // pois a invocação não é possivel sem a reversão
-        (new \PhpClassClosed)->method();
-    }
-
-    /**
-     * @expectedException Error
-     * @expectedExceptionMessage Class 'PhpClassNamespaced' not found
-     */
-    public function testObfuscatePhpClassNamespaced_Exception()
-    {
-        $origin = self::getStubFile('PhpClassNamespaced.stub');
-        $saved_file = self::makeTempFile();
-
-        // Ofusca o arquivo e salva do disco
-        $ob = new ObfuscateFile;
-        $this->assertTrue($ob->obfuscateFile($origin));
-        $this->assertTrue($ob->save($saved_file));
-
-        // Esta chamada deve emitir um erro no PHP
-        // pois a invocação não é possivel sem a reversão
-        (new \PhpClassNamespaced)->method();
-    }
-
-    /**
-     * @expectedException Error
-     * @expectedExceptionMessage Call to undefined function PhpProcedural()
-     */
-    public function testObfuscatePhpProcedural_Exception()
-    {
-        $origin = self::getStubFile('PhpProcedural.stub');
-        $saved_file = self::makeTempFile();
-
-        // Ofusca o arquivo e salva do disco
-        $ob = new ObfuscateFile;
-        $this->assertTrue($ob->obfuscateFile($origin));
-        $this->assertTrue($ob->save($saved_file));
-
-        // Esta chamada deve emitir um erro no PHP
-        // pois a invocação não é possivel sem a reversão
-        \PhpProcedural();
-    }
-
-    /**
-     * @expectedException Error
-     * @expectedExceptionMessage Call to undefined function PhpProceduralClosed()
-     */
-    public function testObfuscatePhpProceduralClosed_Exception()
-    {
-        $origin = self::getStubFile('PhpProceduralClosed.stub');
-        $saved_file = self::makeTempFile();
-
-        // Ofusca o arquivo e salva do disco
-        $ob = new ObfuscateFile;
-        $this->assertTrue($ob->obfuscateFile($origin));
-        $this->assertTrue($ob->save($saved_file));
-
-        // Esta chamada deve emitir um erro no PHP
-        // pois a invocação não é possivel sem a reversão
-        \PhpProceduralClosed();
-    }
-
     public function testObfuscatePhpProceduralMixed()
     {
         $origin = self::getStubFile('PhpProceduralMixed.stub');
@@ -321,6 +226,7 @@ class ObfuscateFileTest extends TestCase
     public function testGetRevertFileContents()
     {
         $ob = (new ObfuscateFileAccessor)->method('getRevertFileContents');
+        // TODO: testar este método
         $this->assertTrue(true);
     }
 
@@ -328,17 +234,12 @@ class ObfuscateFileTest extends TestCase
     {
         $origin = self::getStubFile('PhpClass.stub');
         $saved_file = self::makeTempFile();
-        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_' . uniqid());
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
         $ob->obfuscateFile($origin);
         $this->assertTrue($ob->save($saved_file));
-        $this->assertTrue($ob->saveRevertFile($saved_revert_file));
-
-        // Inclusão do arquivo com as funções de reversão
-        //dd(file_get_contents($saved_revert_file));
-        require_once $saved_revert_file;
 
         // Inclusão do arquivo ofuscado
         require_once $saved_file;
@@ -351,16 +252,12 @@ class ObfuscateFileTest extends TestCase
     {
         $origin = self::getStubFile('PhpClassClosed.stub');
         $saved_file = self::makeTempFile();
-        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_' . uniqid());
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
         $ob->obfuscateFile($origin);
         $this->assertTrue($ob->save($saved_file));
-        $this->assertTrue($ob->saveRevertFile($saved_revert_file));
-
-        // As funções de reversão já estão na memória pois o
-        // arquivo foi incluido no teste testObfuscatePhpClass
 
         // Inclusão do arquivo ofuscado
         require_once $saved_file;
@@ -373,22 +270,19 @@ class ObfuscateFileTest extends TestCase
     {
         $origin = self::getStubFile('PhpClassNamespaced.stub');
         $saved_file = self::makeTempFile();
-        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_' . uniqid());
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
         $ob->obfuscateFile($origin);
         $this->assertTrue($ob->save($saved_file));
-        $this->assertTrue($ob->saveRevertFile($saved_revert_file));
-
-        // As funções de reversão já estão na memória pois o
-        // arquivo foi incluido no teste testObfuscatePhpClass
 
         // Inclusão do arquivo ofuscado
         require_once $saved_file;
 
         $this->assertEquals((new \Php\Name\Space\PhpClassNamespaced)->method(), 'Php\Name\Space\PhpClassNamespaced executando com sucesso');
     }
+
 
     public function testObfuscatePhpProcedural()
     {
@@ -400,10 +294,6 @@ class ObfuscateFileTest extends TestCase
         $ob = new ObfuscateFileAccessor;
         $ob->obfuscateFile($origin);
         $this->assertTrue($ob->save($saved_file));
-        $this->assertTrue($ob->saveRevertFile($saved_revert_file));
-
-        // As funções de reversão já estão na memória pois o
-        // arquivo foi incluido no teste testObfuscatePhpClass
 
         // Inclusão do arquivo ofuscado
         require_once $saved_file;
@@ -416,16 +306,12 @@ class ObfuscateFileTest extends TestCase
     {
         $origin = self::getStubFile('PhpProceduralClosed.stub');
         $saved_file = self::makeTempFile();
-        $saved_revert_file = self::makeTempFile('revert_obfuscate_');
+        $saved_revert_file = self::makeTempFile('revert_obfuscate_' . uniqid());
 
         // Ofusca o arquivo e salva do disco
         $ob = new ObfuscateFileAccessor;
         $ob->obfuscateFile($origin);
         $this->assertTrue($ob->save($saved_file));
-        $this->assertTrue($ob->saveRevertFile($saved_revert_file));
-
-        // As funções de reversão já estão na memória pois o
-        // arquivo foi incluido no teste testObfuscatePhpClass
 
         // Inclusão do arquivo ofuscado
         require_once $saved_file;
