@@ -13,7 +13,7 @@ Esta é uma biblioteca bem testada que atualmente é executada em vários projet
 
 Embora a biblioteca seja bem feita e desenvolvida com o máximo de qualidade, não é de se esperar que o código resultante do processo de ofuscação possua exatamente a mesma performance de uma código aberto (normal) do PHP, pois existe uma camada a mais acontecendo no processo, onde a ofuscação é desfeita em tempo de execução.
 
-Em relação a segurança, optou-se pela performance mais do que pela impossibilidade da desofuscação manual. Embora seja bem complicado para a maioria dos programadores, é "possível" desofuscar o código através de conhecimento somado com a tentativa e erro. Mas isso se torna totalmente inviável uma vez que grande tempo deve ser dispensado para isso, haja visto que cada arquivo possui rotinas diferentes de reversão da ofuscação, rotina geradas randomicamente a cada ofuscação.
+Em relação a segurança, optou-se pela performance mais do que pela impossibilidade da desofuscação manual. Embora seja bem complicado para a maioria dos programadores, é "possível" desofuscar o código através de conhecimento somado com a tentativa e erro. Mas isso se torna totalmente inviável uma vez que grande tempo deve ser dispensado para isso, haja visto que cada arquivo possui rotinas diferentes de reversão da ofuscação, rotinas geradas randomicamente a cada ofuscação.
 
 ## 1.3. As versões da biblioteca
 

@@ -2,11 +2,11 @@
 
 ## 2.1. Requisitos do usuário
 
-Este guia leva em consideração que os usuários estejam utilizando terminal Unix (Linux ou Unix/Mac). Usuários que esteja usando Windows podem executar os mesmos comandos através de emuladores de terminal. Uma ótima alternativa para Windows é o [Git Bash](https://gitforwindows.org/), que acompanha o excelente [Git for Windows](https://gitforwindows.org/).
+Este guia leva em consideração que os usuários estejam utilizando terminal Unix (Linux ou Unix/Mac). Usuários que estejam usando Windows podem executar os mesmos comandos através de emuladores de terminal. Uma ótima alternativa para Windows é o [Git Bash](https://gitforwindows.org/), que acompanha o excelente [Git for Windows](https://gitforwindows.org/).
 
 ## 2.2. Requisitos do servidor
 
-Para o correto funcionamento, o Access Control precisa que os seguintes requisitos básicos sejam atendidos, estando disponíveis no servidor:
+Para o correto funcionamento, o Light Obfuscator precisa que os seguintes requisitos básicos sejam atendidos, estando disponíveis no servidor:
 
 * PHP >= 7.1.0
 

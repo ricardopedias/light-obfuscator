@@ -8,7 +8,7 @@
 ## 3.1. Ofuscando um único arquivo
 
 Para ofuscar um único arquivo PHP, usa-se a classe ObfuscateFile,
-fornecendo o caminho completo até o arquivo PHP a ser procesado e também a localização do resultado ofuscado.
+fornecendo o caminho completo até o arquivo PHP a ser processado e também a localização do resultado ofuscado.
 
 * O método **obfuscateFile()** marca o arquivo para ofuscação;
 * O método **save()** ofusca efetivamente, salvando na localização especificada.
@@ -30,7 +30,7 @@ include 'projeto/ofuscado.php';
 ## 3.2. Ofuscando um diretório
 
 Para ofuscar um diretório inteiro, usa-se a classe ObfuscateDirectory,
-fornecendo o caminho completo até o diretório a ser procesado e também a localização do resultado ofuscado.
+fornecendo o caminho completo até o diretório a ser processado e também a localização do resultado ofuscado.
 
 * O método **obfuscateDirectory()** marca o diretório para ofuscação;
 * O método **saveDirectory()** ofusca efetivamente, salvando na localização especificada.
