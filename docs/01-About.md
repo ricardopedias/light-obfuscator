@@ -2,14 +2,13 @@
 
 ## 1.1. Sobre o Light Obfuscator
 
-O Light Obfuscator surgiu da necessidade de ocultar o código, que possuía direitos autorais, e precisava
-ser executando no servidor de um cliente. Outra necessidade importante era que o código resultante da ofuscação fosse o mais rápido possível, custando o mínimo de recursos para o servidor executar.
+O Light Obfuscator é uma biblioteca bem testada que atualmente é executada em vários projetos reais. Surgiu da necessidade de ocultar o código, que possuía direitos autorais, e precisava ser executando no servidor de um cliente. Outra necessidade importante era que o código resultante da ofuscação fosse o mais rápido possível, custando o mínimo de recursos para o servidor executar.
 
 Originalmente a biblioteca foi desenvolvida para o PHP 5.2, evoluindo para o 5.6 e executando sem problemas em todo este período. Com o advento do PHP 7, a performance e a agilidade aumentou consideravelmente.
 
-Esta é uma biblioteca bem testada que atualmente é executada em vários projetos reais.
-
 ## 1.2. Performance e Segurança
+
+A ofuscação gerada pela biblioteca é autocontida, ou seja, não precisa que sejam instaladas extensões adicionais ou softwares no servidor. Todo o processo é executado pelo próprio PHP.
 
 Embora a biblioteca seja bem feita e desenvolvida com o máximo de qualidade, não é de se esperar que o código resultante do processo de ofuscação possua exatamente a mesma performance de uma código aberto (normal) do PHP, pois existe uma camada a mais acontecendo no processo, onde a ofuscação é desfeita em tempo de execução.
 
