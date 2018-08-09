@@ -167,7 +167,7 @@ class ObfuscateDirectory extends ObfuscateFile
      * @param  bool $force
      * @return bool
      */
-    protected function makeDir(string $path, bool $force = false) : bool
+    public function makeDir(string $path, bool $force = false) : bool
     {
         if (is_dir($path) == true) {
             return true;
