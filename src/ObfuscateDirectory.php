@@ -52,6 +52,47 @@ class ObfuscateDirectory extends ObfuscateFile
     protected $obfuscated_index = [];
 
     /**
+     * Lista de arquivos que não serão ofuscados.
+     *
+     * @var array
+     */
+    protected $not_obfuscate_files = [];
+
+    /**
+     * Adiciona um arquivo na lista de "não-ofuscados".
+     *
+     * @param  string             $php_file
+     * @return ObfuscateDirectory
+     */
+    public function addNotObfuscateFile(string $php_file): ObfuscateDirectory
+    {
+        $this->not_obfuscate_files[] = $php_file;
+        return $this;
+    }
+
+    /**
+     * Devolve os arquivos que não deverão ser ofuscados.
+     *
+     * @return array
+     */
+    public function getNotObfuscateFiles() : array
+    {
+        return $this->not_obfuscate_files;
+    }
+
+    /**
+     * Verifica se o arquivoe specificado está na lista de "não-ofuscados"
+     *
+     * @param  string $php_file
+     * @return bool
+     */
+    public function isNotObfuscateFile(string $php_file) : bool
+    {
+        $files = array_flip($this->not_obfuscate_files);
+        return (isset($files[$php_file]) == true);
+    }
+
+    /**
      * Seta o nome do arquivo que conterá as funções de reversão.
      * Este arquivo sejá gerado pelo processo de ofuscação automaticamente
      * e adicionado no arquivo 'autoloader.php' da aplicação.
@@ -250,7 +291,9 @@ class ObfuscateDirectory extends ObfuscateFile
 
             } elseif (is_file($iterate_current_item) == true) {
 
-                if ($this->isPhpFilename($iterate_current_item) == true) {
+                if ($this->isPhpFilename($iterate_current_item) == true
+                 && $this->isNotObfuscateFile($iterate_current_item) == false
+                ) {
 
                     // Arquivos PHP são ofuscados
                     if($this->obfuscateFile($iterate_current_item) == false) {
@@ -267,7 +310,8 @@ class ObfuscateDirectory extends ObfuscateFile
 
                 } else {
 
-                    // Arquivos não-PHP são simplesmente copiados
+                    // Arquivos "não-PHP" ou arquivos marcados para "não-ofuscar"
+                    // são simplesmente copiados
                     if (copy($iterate_current_item, $iterate_obfuscated_item) === false) {
                         $this->addErrorMessage("Arquivo " . $iterate_current_item . " não pôde ser copiado");
                         return false;

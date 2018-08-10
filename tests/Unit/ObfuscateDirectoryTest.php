@@ -16,6 +16,23 @@ class ObfuscateDirectoryTest extends TestCase
 {
     use BaseTools;
 
+    public function testAddNotObfuscateFile()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addNotObfuscateFile('aaa'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addNotObfuscateFile('bbb'));
+        $this->assertInstanceOf(ObfuscateDirectory::class, $ob->addNotObfuscateFile('ccc'));
+
+        $this->assertCount(3, $ob->getNotObfuscateFiles());
+        $this->assertEquals($ob->getNotObfuscateFiles()[0], 'aaa');
+        $this->assertEquals($ob->getNotObfuscateFiles()[1], 'bbb');
+        $this->assertEquals($ob->getNotObfuscateFiles()[2], 'ccc');
+
+        $this->assertTrue($ob->isNotObfuscateFile('aaa'));
+        $this->assertTrue($ob->isNotObfuscateFile('bbb'));
+        $this->assertFalse($ob->isNotObfuscateFile('zzz'));
+    }
+
     public function testAddRuntimeMessage()
     {
         $ob = new ObfuscateDirectoryAccessor;
@@ -271,6 +288,91 @@ class ObfuscateDirectoryTest extends TestCase
 
         // Marca os arquivos e diretórios gerados pela ofuscação
         // para o garbage collector possa remover
+        foreach($obf_info as $item) {
+            self::addGarbageItem($obf_dir . DIRECTORY_SEPARATOR . $item);
+        }
+    }
+
+    public function testSaveDirectory_NotObfuscateFiles()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_not_obfuscate_files');
+
+        // Seta os arquivo que não serão ofuscados
+        // /var/www/laravel56/packages/plexi/light-obfuscator/tests/Files/app/User.php
+        $file_one = implode(DIRECTORY_SEPARATOR, [$app_dir, 'User.php']);
+        $file_two = implode(DIRECTORY_SEPARATOR, [$app_dir, 'Exceptions', 'Handler.php']);
+        $ob->addNotObfuscateFile($file_one);
+        $ob->addNotObfuscateFile($file_two);
+
+        // Ofusca o diretório
+        $ob->obfuscateDirectory($app_dir);
+        $this->assertTrue($ob->saveDirectory($obf_dir . "/"));
+        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
+
+        $app_info = self::treeInfo($app_dir);
+        $obf_info = self::treeInfo($obf_dir);
+
+        // remove os arquivos 'App.php' e 'autoloader.php',
+        // que são gerados adicionalmente
+        $obf_info_cleaned = [];
+        foreach ($obf_info as $index => $item) {
+            if(preg_match('#App\.php#', $item) || preg_match('#autoloader\.php#', $item)) {
+                continue;
+            }
+            $obf_info_cleaned[] = $item;
+        }
+
+        $this->assertEquals($app_info, $obf_info_cleaned);
+
+        // Verifica se todos os arquivos PHP
+        // foram devidamente ofuscados
+        foreach($obf_info_cleaned as $item) {
+
+            $ob_file = $obf_dir . $item;
+
+            if ($ob->method('isPhpFilename', $ob_file)) {
+
+                $compare_file_one = str_replace($app_dir, $obf_dir, $file_one);
+                $compare_file_two = str_replace($app_dir, $obf_dir, $file_two);
+
+                if (in_array($ob_file, [$compare_file_one, $compare_file_two]) == true) {
+                    $this->assertFalse($ob->isObfuscatedFile($ob_file));
+
+                } else {
+                    $this->assertTrue($ob->isObfuscatedFile($ob_file));
+                }
+            }
+        }
+
+        // Marca os arquivos e diretórios gerados pela ofuscação
+        // para o garbage collector possa remover
+        foreach($obf_info as $item) {
+            self::addGarbageItem($obf_dir . DIRECTORY_SEPARATOR . $item);
+        }
+    }
+
+    public function testIsObfuscatedDirectory()
+    {
+        $ob = new ObfuscateDirectoryAccessor;
+
+        $app_dir = self::getTestFilesPath('app');
+        $obf_dir = self::makeTempPath('app_obfuscated_is_obfuscated_directory');
+
+        // Ofusca o diretório
+        $ob->obfuscateDirectory($app_dir);
+        $this->assertTrue($ob->saveDirectory($obf_dir . "/"));
+        $this->assertEquals($obf_dir, $ob->getObfuscatedPath());
+
+        // Faz a s verificações de ofuscação
+        $this->assertFalse($ob->isObfuscatedDirectory($app_dir));
+        $this->assertTrue($ob->isObfuscatedDirectory($obf_dir));
+
+        // Marca os arquivos e diretórios gerados pela ofuscação
+        // para o garbage collector possa remover
+        $obf_info = self::treeInfo($obf_dir);
         foreach($obf_info as $item) {
             self::addGarbageItem($obf_dir . DIRECTORY_SEPARATOR . $item);
         }
