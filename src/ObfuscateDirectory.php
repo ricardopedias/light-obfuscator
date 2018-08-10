@@ -72,6 +72,14 @@ class ObfuscateDirectory extends ObfuscateFile
      */
     public function isObfuscatedDirectory(string $obfuscated_directory) : bool
     {
+        if (is_dir($obfuscated_directory) == false) {
+            return false;
+        }
+
+        if (is_file($obfuscated_directory . DIRECTORY_SEPARATOR . "autoloader.php") == false) {
+            return false;
+        }
+
         return true;
     }
 
@@ -92,6 +100,11 @@ class ObfuscateDirectory extends ObfuscateFile
 
         if (is_readable($this->plain_path) == false) {
             $this->addErrorMessage("No permissions to read directory");
+            return false;
+        }
+
+        if ($this->isObfuscatedDirectory($this->plain_path) == true) {
+            $this->addRuntimeMessage("The specified directory is already obfuscated");
             return false;
         }
 
