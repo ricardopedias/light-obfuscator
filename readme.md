@@ -4,14 +4,14 @@
 ![Packagist](https://img.shields.io/packagist/v/plexi/light-obfuscator.svg)
 ![Downloads](https://img.shields.io/packagist/dm/plexi/light-obfuscator.svg)
 
-*By [Ricardo Pereira Dias &copy;](https://rpdesignerfly.github.io)*
+*By [Ricardo Pereira Dias &copy;](https://www.ricardopdias.com.br)*
 
 Com o Light Obfuscator é possível ocultar o código PHP, mantendo sua execução normal. Muito útil para casos onde não é interessante compartilhar a regra de negócio ou a implementação efetuada em um determinado projeto.
 
 
 ![Ofuscação de Código PHP](docs/imgs/code-obfuscating.png?raw=true)
 
-Sinta-se à vontade para conferir os [releases](https://github.com/rpdesignerfly/light-obfuscator/releases) e a [licença](license.md).
+Sinta-se à vontade para conferir os [releases](https://github.com/ricardopedias/light-obfuscator/releases) e a [licença](license.md).
 
 ### Características
 
@@ -38,4 +38,4 @@ Sinta-se à vontade para conferir os [releases](https://github.com/rpdesignerfly
 
 ## Creditos
 
-- [Ricardo Pereira Dias](https://rpdesignerfly.github.io)
+- [Ricardo Pereira Dias](https://www.ricardopdias.com.br)
