@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2018 Ricardo Pereira Dias (https://rpdesignerfly.github.io)
+Copyright (c) 2018-2020 Ricardo Pereira Dias (https://www.ricardopdias.com.br)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
